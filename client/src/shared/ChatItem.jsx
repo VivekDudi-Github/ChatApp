@@ -1,6 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material'
 import { StyledLink } from '../components/styles/StylesComponent'
 import { memo } from 'react'
+import AvatarCard from './AvatarCard'
 
 function ChatItem({
   avatar = [] ,
@@ -13,7 +14,11 @@ function ChatItem({
   handleDeleteChatOpen
 }){
   return (
-    <StyledLink to={`/chat/${_id}`} onContextMenu={(e) => handleDeleteChatOpen(e._id, groupChat)}>
+    <StyledLink to={`/chat/${_id}`}
+    sx={{
+      padding : '0rem'
+    }}
+    onContextMenu={(e) => handleDeleteChatOpen(e._id, groupChat)}>
       <div style={{
         display : 'flex' , 
         gap : '1rem' , 
@@ -21,8 +26,11 @@ function ChatItem({
         padding : '1rem' ,
         color : sameSender ? 'white' : 'unset' , 
         backgroundColor : sameSender ? 'black' : 'unset' ,
-        position : 'relative'
+        position : 'relative' , 
+        justifyContent : 'space-around'
       }}>
+
+      <AvatarCard avatar={avatar} />
 
         <Stack>
           <Typography>{name}</Typography>

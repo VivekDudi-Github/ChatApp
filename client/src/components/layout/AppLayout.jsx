@@ -3,9 +3,15 @@ import Header from './Header'
 import Title from '../../shared/Title'
 import { Grid } from '@mui/material'
 import ChatList from '../specific/CHatList'
+import { sampleData } from '../../shared/data'
+import { useParams } from 'react-router-dom'
+import Profile from '../specific/Profile'
 
 const AppLayout = () => (Component) => { 
   return (props) => {
+    const params = useParams() ;
+    const {id} = params ;
+
     return (
       <>
         <Header />
@@ -19,7 +25,7 @@ const AppLayout = () => (Component) => {
             }} 
             height={'100%'}
           >  
-            <ChatList chats={[ 1,3, 5, 6]}/>
+            <ChatList chats={sampleData} userId={id} handleDeleteChat={() => console.log('chat deleted')} />
           </Grid>
 
           <Grid item xs={12}  sm={8} md={5} lg={6} height={'100%'} >
@@ -31,7 +37,7 @@ const AppLayout = () => (Component) => {
               padding : '2rem' ,
               bgcolor : 'rgb(0,0,0,0.4)'
             }}>
-            Second
+            <Profile />
           </Grid>
 
         </Grid>
