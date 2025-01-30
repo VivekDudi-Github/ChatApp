@@ -1,5 +1,12 @@
 import { Avatar, Stack, Typography } from '@mui/material'
 import React from 'react'
+import { 
+  AlternateEmail as EmailIcon , 
+  Face2 as FaceIcon , 
+  CalendarMonth 
+ } from "@mui/icons-material";
+
+import moment from 'moment'
 
 function Profile() {
   return (
@@ -12,7 +19,10 @@ function Profile() {
         border: '5px solid white'
       }} />
 
-      <ProfileCard heading={'bio'} text={'abx'} />
+      <ProfileCard heading={'Bio'} text={'Mera naam Ajwan sing h'}  />
+      <ProfileCard heading={'Usernmae'} text={'miAjwan_sing'} Icon={<EmailIcon />} />
+      <ProfileCard heading={'Name'} text={'Ajwan Sing'} Icon={<FaceIcon />} />
+      <ProfileCard heading={'Joined'} text={moment('2-12-2024').fromNow()} Icon={<CalendarMonth />} />
     </Stack>
   )
 }

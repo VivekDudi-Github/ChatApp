@@ -35,7 +35,7 @@ const AppLayout = () => (Component) => {
             sx={{
               display : {xs :'none' , md : 'block'} ,
               padding : '2rem' ,
-              bgcolor : 'rgb(0,0,0,0.4)'
+              bgcolor : 'rgb(0,0,0,0.8)'
             }}>
             <Profile />
           </Grid>
