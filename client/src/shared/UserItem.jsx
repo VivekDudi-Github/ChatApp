@@ -1,8 +1,8 @@
-import { Add as AddIcon } from '@mui/icons-material';
+import { Add as AddIcon , RemoveCircle } from '@mui/icons-material';
 import { Avatar, IconButton, ListItem, Stack, Typography } from '@mui/material';
 import React, { memo } from 'react'
 
-function UserItem({user , handler  ,handlerIsLoading }) {
+function UserItem({user , handler , UserAdded  ,handlerIsLoading }) {
   const {name , user_id , avatar} = user ;
   return (
     <ListItem
@@ -31,7 +31,7 @@ function UserItem({user , handler  ,handlerIsLoading }) {
           }
         }}
         onClick={() => handler(user_id)} disabled={handlerIsLoading}>
-          <AddIcon />
+          {UserAdded ? <RemoveCircle /> : <AddIcon />}
         </IconButton>
       </Stack>
     </ListItem>

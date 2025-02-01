@@ -24,6 +24,7 @@ function ChatItem({
         gap : '1rem' , 
         alignItems : 'center' , 
         padding : '1rem' ,
+        transitionDuration : '500ms' ,
         color : sameSender ? 'white' : 'unset' , 
         backgroundColor : sameSender ? 'black' : 'unset' ,
         position : 'relative' , 

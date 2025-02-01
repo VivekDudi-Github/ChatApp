@@ -17,7 +17,7 @@ const AppLayout = () => (Component) => {
         <Header />
         <Title Title='ChatApp' />
 
-        <Grid  container height={'calc(100vh -4 rem)'} >
+        <Grid  container height={"calc(100vh - 4rem)"}>
         
           <Grid item sm={4} md={3}  
             sx={{
