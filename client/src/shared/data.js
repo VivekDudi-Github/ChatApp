@@ -81,3 +81,21 @@ export const SampleMessage  = [
     
   },
 ]
+
+export const sampleGroup = [
+  {
+    avatar : 'https://www.w3schools.com/howto/img_avatar.png'  ,
+    _id : 'group1' , 
+    name : 'Group 1'
+  } ,
+  {
+    avatar : 'https://www.w3schools.com/howto/img_avatar.png'  ,
+    _id : 'group2' , 
+    name : 'Group 2'
+  } ,
+  {
+    avatar : 'https://www.w3schools.com/howto/img_avatar.png'  ,
+    _id : 'group3' , 
+    name : 'Group 3'
+  } ,
+]
