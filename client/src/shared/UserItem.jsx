@@ -4,6 +4,8 @@ import React, { memo } from 'react'
 
 function UserItem({user , handler , UserAdded  ,handlerIsLoading }) {
   const {name , user_id , avatar} = user ;
+  console.log(user);
+  
   return (
     <ListItem
     sx={{
@@ -14,23 +16,17 @@ function UserItem({user , handler , UserAdded  ,handlerIsLoading }) {
     }}>
       <Stack direction={'row'} alignItems={'center'} spacing={'1rem'} width={'100%'}>
         <Avatar/>
-        <Typography variant='body1'
-          sx={{
-            flexGrow : 1 ,  
-            display : 'w'
-          }}
-        >{name}</Typography>
+        <Typography variant='body1' sx={{flexGrow : 1 , display : 'w'}}>
+          {name}
+        </Typography>
 
-        <IconButton 
-        size='small' 
-        sx={{
-          bgcolor : 'primary.main' , 
-          color :'white' , 
+        <IconButton size='small' sx={{bgcolor : 'primary.main' , color :'white' , 
           ":hover" : {
             bgcolor : 'primary.dark'
           }
         }}
-        onClick={() => handler(user_id)} disabled={handlerIsLoading}>
+        onClick={() => handler(user_id)} disabled={handlerIsLoading}
+        >
           {UserAdded ? <RemoveCircle /> : <AddIcon />}
         </IconButton>
       </Stack>
