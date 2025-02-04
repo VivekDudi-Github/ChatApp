@@ -5,7 +5,8 @@ import {useNavigate, useSearchParams} from 'react-router-dom'
 import { memo } from 'react';
 import { StyledLink } from '../components/styles/StylesComponent';
 import AvatarCard from '../shared/AvatarCard'
-import { sampleGroup } from '../shared/data';
+import { sampleGroup, sampleUser } from '../shared/data';
+import UserItem from '../shared/UserItem';
 const DeleteDialog = lazy(() => import('../shared/DeleteDialog'))
 const AddMemberDialog = lazy(() => import('../shared/AddMemberDialog'))
 
@@ -39,8 +40,12 @@ const DeleteGroupHandler = () => {
 }
 
 const addMembersHandler = () => {
-
+  setAddMember(true)
 }
+
+const removeMemberHandler = (id) =>{
+
+} 
 
 
 useEffect(() => {
@@ -100,13 +105,16 @@ const iconBtns =
           xs : 'none' , 
           sm : 'block' 
         } ,
-        bgcolor : '#ccc'
+        color : 'white' ,
+        bgcolor : '#000'
       }}
       sm={4}
       >
         <GroupList myGroup={sampleGroup} CurrentGroup_id={CurrentGroup_id} />
       </Grid>
 
+      {CurrentGroup_id ?
+      <>
       <Grid item xs={12} sm={8}
         sx={{
           display : 'flex' , 
@@ -137,8 +145,21 @@ const iconBtns =
 
         {/* Members */}
         <Typography alignSelf={'flex-start'} margin={'1rem'} variant='body1'>Members</Typography>
-        <Stack boxSizing={'border-box'} maxWidth={'45rem'} margin={'0 0 1rem'} width={'100%'} padding={{ sm : '1rem' ,xs :'0' ,md:'1rem 4rem'}} spacing={'2rem'} bgcolor={'#ccc'} height={'50vh'} overflow={'auto'}>
-          
+        <Stack boxSizing={'border-box'} maxWidth={'45rem'} margin={'0 0 1rem'} width={'100%'} padding={{ sm : '1rem' ,xs :'0' ,md:'1rem 4rem'}}  height={'50vh'} overflow={'auto'}>
+          {sampleUser.map((u) => (
+            <UserItem user={u} key={u.user_id} UserAdded handler={removeMemberHandler}
+            styling={{
+                boxShadow : ' 0 0 0.5rem rgba(0,0,0,0.5)' ,
+                padding : '1rem' , 
+                borderRadius : '1rem' , 
+                bgcolor : 'black' , 
+                color : 'white' ,
+                hover : {
+                  bgcolor : 'none'
+                }
+              }}
+            />
+          ))}
         </Stack>
         <Stack p={{ xs :'0' ,sm : '1rem',md:'1rem 4rem'}} sx={{transitionDuration : '200ms'}} gap={'5px'} direction={'row'}>
           <Button size='large' variant='contained' sx={{ fontSize : '0.8rem' , transitionDuration : '200ms'}} startIcon={<AddIcon/>} onClick={addMembersHandler}>Add Members</Button>
@@ -157,20 +178,23 @@ const iconBtns =
       }
 
       {
-        !AddMember && 
+        AddMember && 
         <Suspense fallback={<Backdrop />}>
-          <AddMemberDialog handleClose={() => setConfirmDeleteDialog(false)} deleteHandler={DeleteGroupHandler} open={ConfirmDeleteDialog} >
-            Do you Really want to delete this group ?
-          </AddMemberDialog>
+          <AddMemberDialog handleClose={() => setAddMember(false)} deleteHandler={DeleteGroupHandler} open={ConfirmDeleteDialog} />
         </Suspense>
-      }
+      }</>
+    :
+    <Grid item position={'relative'}>
+      {iconBtns}
+    </Grid>
+    }
 
       <Drawer 
       sx={{
         display : {
           xs : 'block' , 
-          sm : 'none'
-        }
+          sm : 'none' ,
+        } , 
       }} open={isMobileOpen} onClose={() => setisMobileOpen(false)}>
       <GroupList w={'50vw'} myGroup={sampleGroup} CurrentGroup_id={CurrentGroup_id} />
       </Drawer>
@@ -179,7 +203,7 @@ const iconBtns =
 }
 
 const GroupList = ({w='100%' , myGroup = [] , CurrentGroup_id}) => {
-  return <Stack width={w} >
+  return <Stack bgcolor={'black'} color={'white'} overflow={'auto'} height={'100%'} width={w} >
     {myGroup.length > 0 ? 
     myGroup.map((g , index) => <GeoupListItems group={g} CurrentGroup_id={CurrentGroup_id} key={index}/> )
     : 
@@ -196,7 +220,7 @@ const GeoupListItems =memo (({group , CurrentGroup_id}) => {
     <Stack 
     sx={{
       ":hover":{
-        bgcolor : 'rgba(0,0,0,0.4)'
+        bgcolor : 'rgba(255,255,255,0.3)'
       } ,
       transitionDuration : '200ms' ,
       padding : '3px'

@@ -8,7 +8,7 @@ const Login = lazy(() => import('./pages/Login'))
 const Chat = lazy(() => import('./pages/Chat'))
 const Group = lazy(() => import('./pages/Group'))
 const NotFound = lazy(() => import('./pages/NotFound'))
-
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
 function App() {
   let user = true ;
   return (
@@ -21,6 +21,8 @@ function App() {
           <Route path="/groups" element={user ? <Group/> : <Navigate to={'/login'} />} />
           
           <Route path="*" element={<NotFound/>} />
+
+          <Route path="/admin" element={<AdminLogin/>} />
         </Routes>  
       </Suspense>
     </>
