@@ -32,3 +32,30 @@ export const InputBox = styled('input')`
   background-color: rgba(0,0,0);
   color : rgb(200,200,200)
 `
+
+
+export const StyledSearchFeild = styled('input')`
+padding : 0.75rem 1.5rem ;
+width: min(40%, 25rem);
+border : none ;
+outline : none ;
+border-radius : 1.5rem ;
+background-color : #f1f1f1 ;
+font-size : 1rem
+`
+
+export const CurvButton = styled('button')({
+
+width : 'min(80px)' ,
+padding : '0.5rem 1rem' ,
+border : 'none' ,
+outline : 'none' ,
+cursor : 'pointer' ,
+borderRadius : '1.5rem' ,
+backgroundColor : 'black' ,
+color : 'white' ,
+fontSize : '1rem' ,
+':hover' : {
+backgroundcolor : 'rgba(0,0,0,0.8)'
+} 
+})
