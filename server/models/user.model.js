@@ -1,8 +1,9 @@
 import { Schema , model } from "mongoose";
 
 const userSchema = new Schema({
-  name : {
+  email : {
     type : String ,
+    unique : true ,
     required : true
   } ,
   username : {
@@ -13,16 +14,12 @@ const userSchema = new Schema({
   password : {
     type : String ,
     required : true , 
-    unique : true , 
-    select : false  ,
   } , 
   avatar : {
     type : String ,
   } ,
   refreshToken : {
     type : String ,
-    unique : true , 
-    required : true , 
   }
 
 } , {timestamps : true})

@@ -1,7 +1,7 @@
-import e from "express";
+import express from "express";
 import { UserloginController , UserSignUpController } from "../controllers/user.controller.js";
 
-const router =  e.Router() ;
+const router =  express.Router() ;
 
 router.post('/login' , UserloginController )
 router.post('/signup' , UserSignUpController )
