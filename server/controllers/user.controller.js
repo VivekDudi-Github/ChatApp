@@ -75,7 +75,6 @@ export const UserloginController = async( req, res) => {
     }
     
     const passCheck = await bycrypt.compare(password , user.password)
-    console.log(passCheck);
     
     if(passCheck !== true){
       return ResError(res , 404  , "password doesn't match")
@@ -98,7 +97,7 @@ export const UserloginController = async( req, res) => {
   }
 }
 
-export const UserLogOutController = async(req , res) => {
+export const UserLogOutController = async(req, res) => {
   try {
     res.clearCookie('refreshToken')
 
@@ -108,10 +107,18 @@ export const UserLogOutController = async(req , res) => {
     return ResError(res , 500 , 'Internal server error')
   }
 }
-export const CheckAuth = (req ,res) => {
-  if(req.user){
-    return ResSuccess(res , 200 , req.user)
+
+export const CheckAuth =async (req, res) => {
+  if(req.userId){
+    const user = await User.findById(req.userId)
+    return ResSuccess(res , 200 , user)
   }else{
     return ResError(res ,400 , "Can't find the user")
   }
+}
+
+export const UserSearchController = async(req , res) => {
+  const {name} = req.query ;
+
+  
 }

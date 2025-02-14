@@ -17,18 +17,18 @@ export const checkUser = async(req , res , next) => {
     try {
       decoded = jwt.verify(inconmingToken , process.env.JWT_KEY)
     } catch (error) {
-      return res.status(400).json({
+      return res.status(401).json({
         error : 'Invalid Token'
       })
     }
 
-    const user = await User.findById({_id : decoded.userId}).select(' -password -refreshToken')
-    if(!user){
-      return res.status(400).json({
+    const userId = await User.exists({_id : decoded.userId}).select(' -password -refreshToken')
+    if(!userId){
+      return res.status(401).json({
         error : 'Unauthourized token'
       })
     }
-    req.user = user ;
+    req.userId = userId ;
     return next() ;
 
   } catch (error) {
