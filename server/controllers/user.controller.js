@@ -17,7 +17,7 @@ const ResSuccess = (res , code , data) => {
 
 export const UserSignUpController = async( req, res) => {
   try {
-    const {email , username , password}= req.body
+    const {email , username , password , name , bio}= req.body
     
     const IsEmailExists = await User.exists({
       email : email 
@@ -38,7 +38,12 @@ export const UserSignUpController = async( req, res) => {
         error : 'username arleardy used'
       })
     }
-   
+    
+    if(!name || !bio){
+      return ResError(res , 400 , 'insufficient credentials')
+    }
+
+
     const saltRounds = await bycrypt.genSalt()
     const HashedPassword = await bycrypt.hash(password , saltRounds )
 
@@ -46,6 +51,9 @@ export const UserSignUpController = async( req, res) => {
       email , 
       password : HashedPassword , 
       username ,
+      name ,
+      bio ,
+      avatar : 'https://img.freepik.com/free-vector/smiling-young-man-illustration_1308-174669.jpg'
     })
     
     const user = await User.findOne({

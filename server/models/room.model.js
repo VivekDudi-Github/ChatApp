@@ -14,6 +14,9 @@ const roomSchema = new Schema({
     ref : "User" ,
     required : true ,
   } , 
+  avatar : {
+    type : String ,
+  } ,
   members : [{
     type : mongoose.Schema.Types.ObjectId , 
     ref : "User" ,
