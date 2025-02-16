@@ -1,6 +1,7 @@
 import { Room } from "../models/room.model.js"
 import {ALERT, REFRETCH_CHATS}  from '../constants/event.js'
 import {emitEvent} from "../utils/features.js"
+import { User } from "../models/user.model.js"
 
 const ResError = (res , code , error) => {
   return res.status(code).json({
@@ -94,7 +95,9 @@ export const getMyGroups = async( req , res) => {
 
 export const addMembers = async (req , res) => {
   try {
-    const {members , id } = req.body ;
+    const {members  } = req.body ;
+    const {id} = req.params ;
+    
     if(!members || !id ) {
       return ResError(res ,400 , "members and id is required")
     }
@@ -121,12 +124,26 @@ export const addMembers = async (req , res) => {
 
 export const removeMembers = async(req, res) => {
   try {
-    const {members , id } = req.body ;
+    const {members} = req.body ;
+    const {id} = req.params ;
+
     if(!members || !id ) {
       return ResError(res ,400 , "members and id is required")
     }
+    if(members === req.userId){
+      return ResError(res , 400 , 'You can not remove yourself')
+    }
 
-    const newGroupData = await Room.findOneAndUpdate({_id : id , creator : req.userId} , 
+    const membersName = [] ;
+
+    for (const m of members) {
+      const user = await User.findById(m , 'name')
+      membersName.push(user.name)
+    }
+    
+    
+
+    const newGroupData = await Room.findOneAndUpdate({_id : id , groupChat : true , creator : req.userId} , 
       {
         $pull : {
           members : 
@@ -139,11 +156,59 @@ export const removeMembers = async(req, res) => {
       return ResError(res , 404, 'group not found')
     }
 
-    return ResSuccess(res ,200 , newGroupData)
+    emitEvent( req ,ALERT ,newGroupData.members , `${membersName.join()} were remove from the group`)
+
+    return ResSuccess(res ,200 ,  newGroupData
+      
+    )
 
   } catch (error) {
-    console.log('error in addding members for group'  , error);
+    console.log('error in addding members for group' , error);
     return ResError(res , 500 , 'internal server error')
   }
 }
 
+export const renameGroup =  async(req ,res) => {
+  try {
+    const {name} = req.body ;
+    const {id} = req.params ;
+
+    if(!name || !id){
+      return ResError(res, 400 , 'insuffucient data')
+    }
+
+    const renamedGroup = await Room.findOneAndUpdate({_id : id , groupChat : true , creator : req.userId} , 
+      {$set : {
+        name : name
+      }} ,
+      {new : true}
+    )
+    if(!renamedGroup){
+      return ResError(res , 404 , 'wrong credentials or unauthorized request')
+    }
+    
+    return ResSuccess(res , 200 , renamedGroup)
+    
+  } catch (error) {
+    console.log('error while renaming group name' , error);
+    return ResError(res , 500 , 'internal server error')    
+  }
+}
+
+export const deleteRoom =  async(req , res) => {
+  try {
+    const {id} =  req.params ;
+  
+    const result  = await Room.deleteOne({_id : id , creator : req.userId })
+
+    if (result.deletedCount === 0) {
+      return ResError(res, 404, 'Room not found or you do not have permission to delete it');
+    }
+
+    return ResSuccess(res , 200 , 'Room removed')
+
+  } catch (error) {
+    console.log('error while deleting the room' , error);
+    return ResError(res , 500 , "internal server error")
+  }
+}
