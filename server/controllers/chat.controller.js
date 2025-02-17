@@ -1,7 +1,8 @@
 import { Room } from "../models/room.model.js"
-import {ALERT, REFRETCH_CHATS}  from '../constants/event.js'
+import {ALERT, NEW_ATTACHMENT, NEW_MESSAGE_ALERT, REFRETCH_CHATS}  from '../constants/event.js'
 import {emitEvent} from "../utils/features.js"
 import { User } from "../models/user.model.js"
+import { Message } from "../models/message.model.js"
 
 const ResError = (res , code , error) => {
   return res.status(code).json({
@@ -130,7 +131,7 @@ export const removeMembers = async(req, res) => {
     if(!members || !id ) {
       return ResError(res ,400 , "members and id is required")
     }
-    if(members === req.userId){
+    if(members.includes(req.userId._id.toString())){
       return ResError(res , 400 , 'You can not remove yourself')
     }
 
@@ -141,9 +142,13 @@ export const removeMembers = async(req, res) => {
       membersName.push(user.name)
     }
     
-    
-
-    const newGroupData = await Room.findOneAndUpdate({_id : id , groupChat : true , creator : req.userId} , 
+  
+    const newGroupData = await Room.findOneAndUpdate({
+      _id : id ,
+      groupChat : true , 
+      creator : req.userId ,
+      $expr : {$gt : [{$size : "$members"} , 3]}
+    } , 
       {
         $pull : {
           members : 
@@ -159,7 +164,7 @@ export const removeMembers = async(req, res) => {
     emitEvent( req ,ALERT ,newGroupData.members , `${membersName.join()} were remove from the group`)
 
     return ResSuccess(res ,200 ,  newGroupData
-      
+
     )
 
   } catch (error) {
@@ -210,5 +215,90 @@ export const deleteRoom =  async(req , res) => {
   } catch (error) {
     console.log('error while deleting the room' , error);
     return ResError(res , 500 , "internal server error")
+  }
+}
+
+export const leaveGroup =  async(req , res) => {
+  try {
+    const {id} = req.params ;
+    
+    const group = await Room.findOne({_id : id})
+    
+    if(group.creator.toString() === req.userId._id.toString()){
+      return ResError(res , 400 , 'can not leave group without changing the creator')
+    }
+
+    group.members = group.members.filter((m) => m.toString() !== req.userId._id.toString() )
+    
+
+
+    if(!group){
+      return ResError(res , 400 ,"can't find the group")
+    }
+
+    await group.save() ;
+    return ResSuccess(res , 200 , group)
+
+  } catch (error) {
+    console.log('error while leaving group' , error);
+    return ResError(res , 500 , 'internal server error')
+  }
+}
+
+export const sendAttachments= async ( req , res) => {
+  try {
+    const {id} = req.params ;
+
+    const room =  await Room.findById(id) ;
+    const user = await User.findById(req.userId) ;
+
+    if(!room){
+      return ResError(res , 404 , 'no group found') 
+    }
+    if(!room.members.includes(user._id)){
+      return ResError(res, 403 , 'person is not a memeber')
+    }
+
+    // const files = req.files || [];
+
+    // if(files.length < 1) {
+    //   return ResError(res, 400 ,'please provide attachments')
+    // }
+
+    //upload files 
+
+    const attachment = ['mean' ,'median' ,'mode'] ;
+
+    const messageForSocket = {
+      content : '' , 
+      attachment : attachment ,
+      sender : { id : req.userId ,name : user.name} ,
+      room : id       
+    }  ;
+
+    const messageForDB = {
+      content : '' , 
+      attachment :attachment,
+      sender : req.userId ,
+      room : id 
+    } ;
+
+    const message = await Message.create(messageForDB);
+
+
+    emitEvent(req , NEW_ATTACHMENT , room.members , {
+      message : messageForSocket ,
+      roomId : id ,
+    })
+
+    emitEvent(req, NEW_MESSAGE_ALERT , room.members , {
+      room_id : room._id ,
+    })
+
+    return ResSuccess(res, 200 , message)
+
+  } catch (error) {
+    console.log('error while sending the attachements' , error);
+    return ResError(res , 500 ,'internal server error')
   }
 }
