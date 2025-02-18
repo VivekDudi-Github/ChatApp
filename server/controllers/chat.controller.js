@@ -1,4 +1,4 @@
-import { Room } from "../models/room.model.js"
+import { Room} from "../models/room.model.js"
 import {ALERT, NEW_ATTACHMENT, NEW_MESSAGE_ALERT, REFRETCH_CHATS}  from '../constants/event.js'
 import {emitEvent} from "../utils/features.js"
 import { User } from "../models/user.model.js"
@@ -15,6 +15,16 @@ const ResSuccess = (res , code , data) => {
     success : true ,
     data : data ,
   })
+}
+const TryCatch = (func , name) => {
+  return async ( req ,res, ...args) => {
+    try {
+      return await func(req , res ,...args)
+    } catch (error) {
+      console.log('error while '+name ,error);
+      return ResError(res, 500 , 'internal server error')   
+    }
+  }
 }
 
 export const newGroupController = async( req, res) => {
@@ -52,34 +62,28 @@ try {
   }
 }
 
-export const getRooms = async( req , res) => {
+export const getRooms = TryCatch( async( req , res) => {
 
-  try {
     const fetchRooms = await Room.find({members : req.userId})
     .populate('members' , 'name avatar' )
 
     if(!fetchRooms) {
       return ResError(res , 404 , 'No rooms found')
     }
-
-    const transformRoomsData = fetchRooms.map(({members ,groupChat , avatar , _id , name }) => {
+    const transformRoomsData = fetchRooms.map(({ members , groupChat , avatar , _id , name }) => {
       return {
         name : groupChat ? name 
         : members[0].name ,
         groupChat ,
         _id ,
         avatar : groupChat ? avatar : members[0].avatar ,
-        members : members.reduce() 
+        members : members 
       }
     })
 
     return ResSuccess(res , 200 , transformRoomsData)
 
-  } catch (error) {
-    console.log('error while Getiing new Chats :' ,error );
-    return ResError(res , 500 , "internal server error")
-  }
-}
+} , 'getRooms' )
 
 export const getMyGroups = async( req , res) => {
   try {
@@ -302,3 +306,29 @@ export const sendAttachments= async ( req , res) => {
     return ResError(res , 500 ,'internal server error')
   }
 }
+
+export const getMessages =  TryCatch(async( req, res) => {  
+  const {id} = req.params ;
+
+} , 'getMessage')
+
+export const getRoomDetails = TryCatch( async(req, res) => {
+  
+  if(req.query.populate === true){
+      
+    const MyRoom =  await Room.findById(req.params.id).populate('members' , 'name avatar')
+    
+    if(!MyRoom){
+      return ResError(res, 404 , 'Room not found')
+    }
+    return ResSuccess(res, 200 ,MyRoom)
+  
+  }else{
+    const MyRoom =  await Room.findById(req.params.id)
+    if(!MyRoom){
+      return ResError(res ,404 , 'room not found')
+    }
+    return ResSuccess(res , 200 , MyRoom)
+  }
+
+} , 'getChatDetails')
