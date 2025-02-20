@@ -213,6 +213,7 @@ export const deleteRoom =  async(req , res) => {
     if (result.deletedCount === 0) {
       return ResError(res, 404, 'Room not found or you do not have permission to delete it');
     }
+    const messages = await Message.deleteOne({room : id})
 
     return ResSuccess(res , 200 , 'Room removed')
 
@@ -309,13 +310,40 @@ export const sendAttachments= async ( req , res) => {
 
 export const getMessages =  TryCatch(async( req, res) => {  
   const {id} = req.params ;
+  const {page = 1} = req.query ;
+
+  const limit = 50 ;
+  const skip = (page-1)*limit ;
+  
+
+  if(!page){
+    return ResError(res, 400 , 'no query provided')
+  }
+
+  const messages = await Message.find({room : id})
+  .sort({createdAt : -1})
+  .skip(skip) 
+  .limit(limit)
+  .populate('sender' , 'avatar name')
+  .lean()
+
+  if(!messages){
+    return ResError(res, 500 , 'an error ocurred while fetching messages')
+  }
+  const totalMessage = await Message.countDocuments({room : id})
+  const total_pages = Math.ceil(totalMessage / limit) ;
+
+  return ResSuccess(res, 200 , {
+    messages : messages ,
+    total_pages 
+  })
 
 } , 'getMessage')
 
 export const getRoomDetails = TryCatch( async(req, res) => {
   
-  if(req.query.populate === true){
-      
+  if(req.query.populate === 'true'){
+        
     const MyRoom =  await Room.findById(req.params.id).populate('members' , 'name avatar')
     
     if(!MyRoom){

@@ -19,6 +19,24 @@ export const UserSignUpController = async( req, res) => {
   try {
     const {email , username , password , name , bio}= req.body
     
+    
+    if(!name || !bio ||!username || !password || !email ){
+      return ResError(res , 400 , 'insufficient credentials')
+    }
+
+    const IsValid = [email , username , password , bio , name].every(val => typeof val === 'string')
+    if(!IsValid) {
+      return ResError(res, 400 , 'data type of feilds is wrong')
+    }
+
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if(emailRegex.test(email) === false ){
+      return ResError(res, 400 , 'provide a valid email')
+    }
+    
+
     const IsEmailExists = await User.exists({
       email : email 
     })
@@ -39,11 +57,9 @@ export const UserSignUpController = async( req, res) => {
       })
     }
     
-    if(!name || !bio){
-      return ResError(res , 400 , 'insufficient credentials')
-    }
+   
 
-
+   
     const saltRounds = await bycrypt.genSalt()
     const HashedPassword = await bycrypt.hash(password , saltRounds )
 
@@ -128,5 +144,4 @@ export const CheckAuth =async (req, res) => {
 export const UserSearchController = async(req , res) => {
   const {name} = req.query ;
 
-  
 }
