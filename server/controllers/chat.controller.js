@@ -104,7 +104,7 @@ export const addMembers = async (req , res) => {
     const {id} = req.params ;
     
     if(!members || !id ) {
-      return ResError(res ,400 , "members and id is required")
+      return ResError(res ,400 , "members and group id is required")
     }
 
     const newGroupData = await Room.findOneAndUpdate({_id : id , creator : req.userId} , 
@@ -146,7 +146,6 @@ export const removeMembers = async(req, res) => {
       membersName.push(user.name)
     }
     
-  
     const newGroupData = await Room.findOneAndUpdate({
       _id : id ,
       groupChat : true , 
@@ -183,7 +182,7 @@ export const renameGroup =  async(req ,res) => {
     const {id} = req.params ;
 
     if(!name || !id){
-      return ResError(res, 400 , 'insuffucient data')
+      return ResError(res, 400 , 'new name and group id not found')
     }
 
     const renamedGroup = await Room.findOneAndUpdate({_id : id , groupChat : true , creator : req.userId} , 
@@ -227,7 +226,11 @@ export const leaveGroup =  async(req , res) => {
   try {
     const {id} = req.params ;
     
-    const group = await Room.findOne({_id : id})
+    const group = await Room.findOne({_id : id , members : { $in : req.userId._id}})
+    
+    if(!group){
+      return ResError(res, 404 , 'no group found with your credetials')
+    }
     
     if(group.creator.toString() === req.userId._id.toString()){
       return ResError(res , 400 , 'can not leave group without changing the creator')
@@ -235,8 +238,6 @@ export const leaveGroup =  async(req , res) => {
 
     group.members = group.members.filter((m) => m.toString() !== req.userId._id.toString() )
     
-
-
     if(!group){
       return ResError(res , 400 ,"can't find the group")
     }

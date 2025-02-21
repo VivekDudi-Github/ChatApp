@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js"
 import bycrypt from "bcrypt";
 import { generateRefreshTokenSetCookies } from "../utils/generateToken.js";
+import { Room } from "../models/room.model.js";
 
 const ResError = (res , code , error) => {
   return res.status(code).json({
@@ -28,14 +29,11 @@ export const UserSignUpController = async( req, res) => {
     if(!IsValid) {
       return ResError(res, 400 , 'data type of feilds is wrong')
     }
-
-
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
     if(emailRegex.test(email) === false ){
       return ResError(res, 400 , 'provide a valid email')
     }
-    
 
     const IsEmailExists = await User.exists({
       email : email 
@@ -90,7 +88,12 @@ export const UserSignUpController = async( req, res) => {
 
 export const UserloginController = async( req, res) => {
   try {
-    const {email , password} = req.body
+    const {email , password} = req.body ;
+
+    if(typeof email !== 'string' || typeof password !== 'string'){
+      return ResError(res , 400 , 'please provide data in string format')
+    } 
+
     
     const user =  await User.findOne({email : email})
 
@@ -142,6 +145,22 @@ export const CheckAuth =async (req, res) => {
 }
 
 export const UserSearchController = async(req , res) => {
-  const {name} = req.query ;
+  try {
+    const {name} =  req.query ;
+    
+    const MyChats = await Room.find({ groupChat : true , members : {$in : req.userId}})
+    
+    if(MyChats.length === 0 ){
+      return ResError(res, 400 ,'no friends found')
+    }
+    const allmembers = MyChats.map((c) => c.members).flat()
+    
+    const knowns = allmembers.filter((m) => { return m.toString() !== req.userId._id.toString()}) 
 
+    return ResSuccess(res, 200 , knowns)
+
+  } catch (error) {
+    console.log('error while search user query' , error);
+    return ResError(res, 500 , 'internal server error')
+  }
 }

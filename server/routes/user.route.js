@@ -9,6 +9,7 @@ router.post('/signup' , UserSignUpController )
 router.get('/check-health' , checkUser , CheckAuth)
 router.get('/logout' , UserLogOutController)
 
-router.get('search' , UserSearchController)
+router.get('/search' ,checkUser , UserSearchController)
+
 
 export default router
