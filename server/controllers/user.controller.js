@@ -2,6 +2,7 @@ import { User } from "../models/user.model.js"
 import bycrypt from "bcrypt";
 import { generateRefreshTokenSetCookies } from "../utils/generateToken.js";
 import { Room } from "../models/room.model.js";
+import {Request} from '../models/request.model.js'
 
 const ResError = (res , code , error) => {
   return res.status(code).json({
@@ -146,21 +147,92 @@ export const CheckAuth =async (req, res) => {
 
 export const UserSearchController = async(req , res) => {
   try {
-    const {name} =  req.query ;
+    const {name = ''} =  req.query ;
     
-    const MyChats = await Room.find({ groupChat : true , members : {$in : req.userId}})
+    const MyChats = await Room.find({ groupChat : false , members : {$in : req.userId}})
     
-    if(MyChats.length === 0 ){
-      return ResError(res, 400 ,'no friends found')
-    }
-    const allmembers = MyChats.map((c) => c.members).flat()
+    const allChatMembers = MyChats.length > 0 ? MyChats.map((c) => c.members).flat() : [] 
     
-    const knowns = allmembers.filter((m) => { return m.toString() !== req.userId._id.toString()}) 
 
-    return ResSuccess(res, 200 , knowns)
+    const allUnknownUsers = await User.find({
+      _id : { $nin : allChatMembers } ,
+      name : { $regex : name , $options : 'i'}
+    }).select(' name avatar _id')
+
+    
+
+    return ResSuccess(res, 200 , allUnknownUsers)
 
   } catch (error) {
     console.log('error while search user query' , error);
+    return ResError(res, 500 , 'internal server error')
+  }
+}
+
+export const sendRequest = async(req, res) => {
+  try{
+    const {id} = req.body ;
+    console.log(req);
+    
+    if(typeof id !== 'string' || !id ){
+      return ResError(res , 400 , "Reciever's id not available")
+    }
+
+    const arleardyRequest = await Request.exists({
+      reciever : id , 
+      sender : req.userId ,
+      status : 'pending'
+    })
+
+    if(arleardyRequest){
+      return ResError(res, 400 , 'already sent a request')
+    }
+
+    const makeRequest = await Request.findOneAndUpdate({
+      reciever : id ,
+      sender : req.userId ,
+      } , {
+      status : 'pending'
+      } , {
+        new : true ,
+        upsert : true ,
+      } 
+    )
+    if(!makeRequest){
+      return ResError(res, 500 , makeRequest  )
+    }
+
+    return ResSuccess(res, 200 , makeRequest )
+  }catch(error){
+    console.log('error while SENDING REQUEST' , error);
+    return ResError(res, 500 , 'internal server error')
+  }
+}
+
+export const AnswersRequest = async(req, res) => {
+  try {
+    const {id , response} = req.body ;
+    if(typeof id !== 'string' || !id ){
+      return ResError(res , 400 , "Reciever's id not available")
+    }
+    if(response !== 'rejected' && response !== 'accepted'){
+      return ResError(res , 400 , "Response Is incorrect")
+    }
+
+    const request =  await Request.findOneAndUpdate({
+      reciever : id ,
+      sender : req.userId 
+    } , 
+    {
+      status : response 
+    } , 
+    { new : true}
+  )
+
+    return ResSuccess(res , 200 , request)
+
+  } catch (error) {
+    console.log('error while ANSWERING REQUEST' , error);
     return ResError(res, 500 , 'internal server error')
   }
 }
