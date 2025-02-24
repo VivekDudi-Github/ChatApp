@@ -3,6 +3,8 @@ import bycrypt from "bcrypt";
 import { generateRefreshTokenSetCookies } from "../utils/generateToken.js";
 import { Room } from "../models/room.model.js";
 import {Request} from '../models/request.model.js'
+import { emitEvent } from "../utils/features.js";
+import { NEW_REQUEST } from "../constants/event.js";
 
 const ResError = (res , code , error) => {
   return res.status(code).json({
@@ -172,20 +174,20 @@ export const UserSearchController = async(req , res) => {
 export const sendRequest = async(req, res) => {
   try{
     const {id} = req.body ;
-    console.log(req);
     
     if(typeof id !== 'string' || !id ){
       return ResError(res , 400 , "Reciever's id not available")
     }
 
     const arleardyRequest = await Request.exists({
-      reciever : id , 
-      sender : req.userId ,
-      status : 'pending'
+      $or: [
+        {reciever : id , sender : req.userId , status : { $in : ['pending' , 'accepted']} } ,
+        {sender : id , reciever : req.userId , status : { $in : ['pending' , 'accepted']}}
+      ] ,
     })
 
     if(arleardyRequest){
-      return ResError(res, 400 , 'already sent a request')
+      return ResError(res, 400 , 'you already had a request ')
     }
 
     const makeRequest = await Request.findOneAndUpdate({
@@ -201,6 +203,8 @@ export const sendRequest = async(req, res) => {
     if(!makeRequest){
       return ResError(res, 500 , makeRequest  )
     }
+
+    emitEvent(req , NEW_REQUEST , [id] )
 
     return ResSuccess(res, 200 , makeRequest )
   }catch(error){
@@ -229,10 +233,45 @@ export const AnswersRequest = async(req, res) => {
     { new : true}
   )
 
+  if(!request){
+    return ResError(res , 404 , 'no request found')
+  }
+
     return ResSuccess(res , 200 , request)
 
   } catch (error) {
     console.log('error while ANSWERING REQUEST' , error);
     return ResError(res, 500 , 'internal server error')
+  }
+}
+
+export const GetMyFriends = async( req, res) => {
+  try {
+    const {GroupId} = req.query ;
+
+    const AllFriendsRoom =  await Room.find({
+      groupChat : false , 
+      members : {$in : req.userId} 
+    }).populate('members' , 'name avatar')
+
+    if(!AllFriendsRoom){
+      return ResError(res , 404 , 'no friends found')
+    }
+
+    const friends =  AllFriendsRoom.flatMap((r) => r.members.filter(m => m._id.toString() !== req.userId._id.toString() ) )
+
+    if(GroupId){
+      const group = await Room.findById(GroupId) ;
+
+      const availableFriends = friends.filter( f => !group.members.includes(f._id) )
+        
+      return ResSuccess(res ,200 , availableFriends) 
+   0
+    }else {
+    return ResSuccess(res ,200 , friends)
+    }
+  } catch (error) {
+    console.log('error while GET_MY_FRIENDS' , error)
+    return ResError(res, 500 ,'internal server error')
   }
 }

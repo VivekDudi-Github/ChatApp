@@ -1,5 +1,5 @@
 import express from "express";
-import { CheckAuth, UserloginController, UserSearchController , sendRequest , UserLogOutController, UserSignUpController, AnswersRequest } from "../controllers/user.controller.js";
+import { CheckAuth, UserloginController, UserSearchController , sendRequest , UserLogOutController, UserSignUpController, AnswersRequest, GetMyFriends } from "../controllers/user.controller.js";
 import { checkUser } from "../utils/checkUser.js";
 
 const router =  express.Router() ;
@@ -12,5 +12,6 @@ router.get('/logout' , UserLogOutController)
 router.get('/search' ,checkUser , UserSearchController)
 router.put('/request' , checkUser , sendRequest)
 router.patch('/request' , checkUser , AnswersRequest)
+router.get('/friends' , checkUser , GetMyFriends)
 
 export default router

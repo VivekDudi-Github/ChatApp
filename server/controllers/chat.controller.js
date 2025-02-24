@@ -58,7 +58,7 @@ try {
 
 } catch (error) {
   console.log(error);
-  return ResError(res, 500 , "internal server error")
+  return ResError(res, 500 , "internal server error" )
   }
 }
 
