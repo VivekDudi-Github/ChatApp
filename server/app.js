@@ -8,9 +8,9 @@ import { v4 as uuid } from "uuid";
 
 import userRouter from './routes/user.route.js'
 import chatRouter from './routes/chat.route.js'
-import { NEW_MESSAGE } from './constants/event.js';
-import { log } from 'console';
+import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from './constants/event.js';
 
+import { getSockets } from './utils/features.js';
 
 
 const port = process.env.PORT
@@ -31,10 +31,8 @@ io.on('connection' ,(socket) => {
   const user = { _id: "userId" ,name : "mera naam" }
    
   userSocketIDs.set(user._id , socket.id)
-  log(userSocketIDs)
 
   socket.on(NEW_MESSAGE , async({room , members , messages}) => {
-
     const messgaeForRealTime = {
       _id :  uuid() ,
       sender : {
@@ -45,20 +43,28 @@ io.on('connection' ,(socket) => {
       createdAt : new Date().toString() ,
       messages 
     }
-
+    
     const messageForDb = {
       sender : user._id ,
       content : 'messages' ,
       room : room
     }
-    console.log(messageForDb);
+    const getSockets = (users = []) => {
+      return users.map(user => userSocketIDs.get(user._id.toString()))
+   }
+    const membersSocket = getSockets(members)
+    console.log(membersSocket);
     
-    console.log(messgaeForRealTime);
-    
+    io.to(membersSocket).emit(NEW_MESSAGE , {
+       message : messgaeForRealTime ,
+       room 
+    })
+    io.to(membersSocket).emit(NEW_MESSAGE_ALERT ,{room})
   })
 
   socket.on("disconnect" , () => {
     console.log("user dissconnected");  
+    userSocketIDs.delete(user._id.toString())
   })
 })
 
@@ -67,3 +73,5 @@ server.listen(port ,() => {
   console.log('server listening on '+port);  
   ConnectDB() ;
 }) 
+
+export {userSocketIDs}
