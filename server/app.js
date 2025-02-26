@@ -11,6 +11,7 @@ import chatRouter from './routes/chat.route.js'
 import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from './constants/event.js';
 
 import { getSockets } from './utils/features.js';
+import { Message } from './models/message.model.js';
 
 
 const port = process.env.PORT
@@ -26,6 +27,9 @@ app.use(cookieParser())
 app.use('/api/v1/user' ,userRouter)
 app.use('/api/v1/chat' ,chatRouter)
 
+io.use((socket , next) => {
+  
+})
 
 io.on('connection' ,(socket) => {
   const user = { _id: "userId" ,name : "mera naam" }
@@ -49,9 +53,6 @@ io.on('connection' ,(socket) => {
       content : 'messages' ,
       room : room
     }
-    const getSockets = (users = []) => {
-      return users.map(user => userSocketIDs.get(user._id.toString()))
-   }
     const membersSocket = getSockets(members)
     console.log(membersSocket);
     
@@ -60,6 +61,12 @@ io.on('connection' ,(socket) => {
        room 
     })
     io.to(membersSocket).emit(NEW_MESSAGE_ALERT ,{room})
+
+    try {
+      await Message.create(messageForDb)
+    } catch (error) {
+      console.log("error while saving message for db" , error);
+    }
   })
 
   socket.on("disconnect" , () => {

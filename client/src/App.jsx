@@ -1,7 +1,10 @@
 import { lazy } from "react"
 import { Navigate, Route ,Routes } from "react-router-dom"
-import { Suspense } from "react"
+import { Suspense  , useEffect} from "react"
 import { LayoutLoader } from "./components/layout/Loaders"
+import axios from 'axios'
+import { useDispatch, useSelector } from "react-redux"
+import { setUser } from "./redux/reducer/auth"
 
 const Home = lazy(() => import('./pages/Home') )
 const Login = lazy(() => import('./pages/Login'))
@@ -16,8 +19,27 @@ const MessageManagement = lazy(() => import('./pages/admin/MessageManagement'))
 
 
 function App() {
-  let user = true ;
-  return (
+  const dispatch = useDispatch() ;
+  const {user , loader} = useSelector(state => state.auth)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const data = await axios.get('/api/v1/user/check-health')
+        console.log(data);
+      } catch (error) {
+        dispatch(setUser(null))
+        console.log(error);
+      } 
+    }
+    fetchUser()
+  }, [])
+  
+  
+  return loader ? 
+  <div>Loading..{loader}</div>
+  :
+  (
     <>
       <Suspense fallback= {<LayoutLoader/>} >
         <Routes>    
