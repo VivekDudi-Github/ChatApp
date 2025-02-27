@@ -7,6 +7,7 @@ export const generateRefreshTokenSetCookies = async (userId , res) => {
     maxAge : 5*24*60*60*1000 ,
     httpOnly : true ,
     secure : true ,
+    SameSite : true ,
   })
 
   return token 

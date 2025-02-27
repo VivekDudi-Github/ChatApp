@@ -5,6 +5,7 @@ import { Room } from "../models/room.model.js";
 import {Request} from '../models/request.model.js'
 import { emitEvent } from "../utils/features.js";
 import { NEW_REQUEST } from "../constants/event.js";
+import { uploadFilesTOCloudinary } from "../utils/features.js";
 
 const ResError = (res , code , error) => {
   return res.status(code).json({
@@ -21,8 +22,9 @@ const ResSuccess = (res , code , data) => {
 
 export const UserSignUpController = async( req, res) => {
   try {
-    const {email , username , password , name , bio}= req.body
-    
+    const {email , username , password , name , bio }= req.body
+    const avatar = req?.file
+    console.log(req);
     
     if(!name || !bio ||!username || !password || !email ){
       return ResError(res , 400 , 'insufficient credentials')
@@ -46,7 +48,6 @@ export const UserSignUpController = async( req, res) => {
         error : 'email arleardy used'
       })
     }
-    
    
     const IsUsernameExists = await User.exists({
       username : username , 
@@ -57,12 +58,12 @@ export const UserSignUpController = async( req, res) => {
         error : 'username arleardy used'
       })
     }
-    
-   
 
    
     const saltRounds = await bycrypt.genSalt()
     const HashedPassword = await bycrypt.hash(password , saltRounds )
+
+    const result = await uploadFilesTOCloudinary([avatar])
 
     const newUser = await User.create({
       email , 
@@ -72,15 +73,8 @@ export const UserSignUpController = async( req, res) => {
       bio ,
       avatar : 'https://img.freepik.com/free-vector/smiling-young-man-illustration_1308-174669.jpg'
     })
-    
-    const user = await User.findOne({
-      _id : newUser._id
-    }).select('-password')
   
-    return res.status(201).json({
-      success : true ,
-      user : user
-    })
+    return ResSuccess(res , 200 )
 
   } catch (error) {
     
@@ -92,10 +86,13 @@ export const UserSignUpController = async( req, res) => {
 export const UserloginController = async( req, res) => {
   try {
     const {email , password} = req.body ;
-
+    
+    if(!email || !password){
+      return ResError(res ,400 ,'required feilds are not found')
+    }
     if(typeof email !== 'string' || typeof password !== 'string'){
       return ResError(res , 400 , 'please provide data in string format')
-    } 
+    }
 
     
     const user =  await User.findOne({email : email})
@@ -140,7 +137,7 @@ export const UserLogOutController = async(req, res) => {
 
 export const CheckAuth =async (req, res) => {
   if(req.userId){
-    const user = await User.findById(req.userId)
+    const user = await User.findById(req.userId).select(' -password -refreshToken')
     return ResSuccess(res , 200 , user)
   }else{
     return ResError(res ,400 , "Can't find the user")

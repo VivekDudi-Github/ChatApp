@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { Server } from 'socket.io';
 import {createServer} from 'http'
 import { v4 as uuid } from "uuid";
+import {v2 as cloudinary} from "cloudinary"
 
 import userRouter from './routes/user.route.js'
 import chatRouter from './routes/chat.route.js'
@@ -74,6 +75,13 @@ io.on('connection' ,(socket) => {
     userSocketIDs.delete(user._id.toString())
   })
 })
+
+
+cloudinary.config({
+  cloud_name : process.env.CLOUDINNARY_CLOUD_NAME ,
+  api_key : process.env.API_KEY ,
+  api_secret : process.env.API_SECRET 
+  })
 
 
 server.listen(port ,() => {

@@ -5,6 +5,7 @@ import { LayoutLoader } from "./components/layout/Loaders"
 import axios from 'axios'
 import { useDispatch, useSelector } from "react-redux"
 import { setUser } from "./redux/reducer/auth"
+import toast, {Toaster} from 'react-hot-toast'
 
 const Home = lazy(() => import('./pages/Home') )
 const Login = lazy(() => import('./pages/Login'))
@@ -21,30 +22,31 @@ const MessageManagement = lazy(() => import('./pages/admin/MessageManagement'))
 function App() {
   const dispatch = useDispatch() ;
   const {user , loader} = useSelector(state => state.auth)
-
+  
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const data = await axios.get('/api/v1/user/check-health')
-        console.log(data);
+        const {data} = await axios.get('/api/v1/user/check-health')
+        toast.success('Logged In successfully')
+        dispatch(setUser(data.data))
       } catch (error) {
         dispatch(setUser(null))
         console.log(error);
+        toast.error(error.response.data.error)
       } 
     }
     fetchUser()
   }, [])
   
-  
   return loader ? 
-  <div>Loading..{loader}</div>
+  <LayoutLoader />
   :
   (
     <>
       <Suspense fallback= {<LayoutLoader/>} >
         <Routes>    
           <Route path="/" element={user ? <Home/> : <Navigate to={'/login'} />} />
-          <Route path="/login" element={<Login/>} />
+          <Route path="/login" element={user ? <Navigate to={'/'} />  : <Login/>} />
           <Route path="/chat/:id" element={user ? <Chat/> : <Navigate to={'/login'} />}/>
           <Route path="/groups" element={user ? <Group/> : <Navigate to={'/login'} />} />
           
@@ -59,6 +61,7 @@ function App() {
         
         </Routes>  
       </Suspense>
+      <Toaster  position="bottom-center"/>
     </>
   )
 }

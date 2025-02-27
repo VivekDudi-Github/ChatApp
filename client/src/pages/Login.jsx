@@ -3,25 +3,67 @@ import {Avatar, Button, Container, IconButton, Paper, Stack, TextField, Typograp
 
 import { CameraAlt } from "@mui/icons-material";
 import { VisuallyHiddenInput } from '../components/styles/StylesComponent';
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../redux/reducer/auth';
+import toast from 'react-hot-toast';
 
 function Login() {
-  const [IsLogin , setIslogin] = useState(true) ;
+    const dispatch = useDispatch() ;
+
+
+  const [IsLogin , setIslogin] = useState(false) ;
   const toggleLogin = () => {setIslogin(!IsLogin)} 
   
   const [password, setPassword] = useState('')
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
+  const [name, setName] = useState('')
   const [bio, setbio] = useState('')
   const [avatar , setAvatar] = useState(null)
   
-  const UsernameRegex = /^[a-zA-Z0-9_]{3,15}$/ ;
+  const UsernameRegex = /^[a-zA-Z0-9_@]{3,15}$/ ;
 
-  const onSubmitSignUp = () => {
 
+  const config = {
+    withCredentials : true ,
+    headers : {
+        "Content-Type" : "application/json" ,
+    }
   }
-  const onSubmitLogin = () => {
-    
+
+  const onSubmitSignUp = async(e) => {
+    e.preventDefault() ;
+    try {
+        const formData =  new FormData() ;
+        formData.append('email', email);
+        formData.append('username', username);
+        formData.append('name', name);
+        formData.append('bio', bio);
+        formData.append('avatar', avatar);
+        formData.append('password', password);
+
+        const {data} = await axios.post('/api/v1/user/signup' , formData , {...config , headers : { "Content-Type" : 'multipart/form-data'}})
+        console.log(data);
+        toast.success('Signed Up In successfully')
+        setIslogin(true)
+    } catch (error) {
+        console.log(error?.response?.data?.error);
+        toast.error(error?.response?.data?.error || "Something went wrong")
+    }
   }
+  const onSubmitLogin = async(e) => {
+    e.preventDefault() ;
+    try {
+        const {data} = await axios.post('/api/v1/user/login' , {email , password} , config)
+        console.log(data);
+        toast.success('Logged In successfully')
+        dispatch(setUser(data.data))
+    } catch (error) {
+        console.log(error?.response?.data?.error);
+        toast.error(error?.response?.data?.error || "Something went wrong")
+    }
+}
 
   return (
     <Container component={'main'} maxWidth='xs' 
@@ -44,10 +86,10 @@ function Login() {
             <>
             <Typography variant='h5'>Login</Typography>
             <form onSubmit={onSubmitLogin}>
-                <TextField required fullWidth margin='normal' variant='outlined' label='Username' type ={'text'} value={username} onChange={e => setUsername(e.target.value)} />
+                <TextField required fullWidth margin='normal' variant='outlined' label='Email' type ={'text'} value={email} onChange={e => setEmail(e.target.value)} />
                 {username.length >0 &&
                 !UsernameRegex.test(username) && 
-                <Typography color='error' variant='caption'>Username should only contain Number, letter & underscore within 3-15 limit. </Typography>
+                <Typography color='error' variant='caption'>Username should only contain Number, letter , @ and underscore within 3-15 limit. </Typography>
                 }
                 <TextField required fullWidth margin='normal' variant='outlined' label='Password' type ={'password'} value={password} onChange={e => setPassword(e.target.value)}/>
                 {password.length < 8  && 
@@ -64,7 +106,7 @@ function Login() {
             </> 
         :
         <>
-        <Typography variant='h5'>Sign Up</Typography>
+        <Typography sx={{marginTop : "2rem"}} variant='h5'>Sign Up</Typography>
             <form onSubmit={onSubmitSignUp}>
 
                 <Stack position={'relative'} width={'10rem'} margin={'auto'} >
@@ -100,8 +142,10 @@ function Login() {
                 <TextField required fullWidth margin='normal' variant='outlined' value={username} label='Username' type ='text' onChange={(e) => setUsername(e.target.value)}/>
                     {username.length >0 &&
                     !UsernameRegex.test(username) && 
-                    <Typography color='error' variant='caption'>Username should only contain Number, letter & underscore within 3-15 limit. </Typography>
+                    <Typography color='error' variant='caption'>Username should only contain Number,
+                     letter , @ and underscore within 3-15 limit. </Typography>
                     }
+                <TextField required fullWidth margin='normal' variant='outlined' value={name} label='Name' type ='text' onChange={(e) => setName(e.target.value)}/>
                 <TextField required fullWidth margin='normal' variant='outlined' value={password} label='Password' type ='password'onChange={(e) => setPassword(e.target.value)}/>
                     {password.length < 8  && 
                     <Typography color='error' variant='caption'>Password length should be atleast .8</Typography>
