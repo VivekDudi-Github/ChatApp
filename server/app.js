@@ -13,7 +13,9 @@ import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from './constants/event.js';
 
 import { getSockets } from './utils/features.js';
 import { Message } from './models/message.model.js';
+import dotenv from 'dotenv';
 
+dotenv.config()
 
 const port = process.env.PORT
 const app = express() ;
@@ -24,6 +26,7 @@ const userSocketIDs = new Map
 
 app.use(express.json({limit : '108kb'}))
 app.use(cookieParser())
+
 
 app.use('/api/v1/user' ,userRouter)
 app.use('/api/v1/chat' ,chatRouter)
@@ -78,7 +81,7 @@ io.on('connection' ,(socket) => {
 
 
 cloudinary.config({
-  cloud_name : process.env.CLOUDINNARY_CLOUD_NAME ,
+  cloud_name : process.env.CLOUDINARY_CLOUD_NAME ,
   api_key : process.env.API_KEY ,
   api_secret : process.env.API_SECRET 
   })

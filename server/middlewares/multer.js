@@ -1,9 +1,16 @@
 import multer from 'multer'
 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+      cb(null, "uploads/"); 
+  },
+  filename: (req, file, cb) => {
+      cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
 const multerUpload = multer({
-  limits : {
-    fieldSize : 1024*1024*5 ,
-  }
+  storage 
 })
 
 const singleAvatar =  multerUpload.single('avatar')

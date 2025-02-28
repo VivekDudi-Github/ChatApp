@@ -24,7 +24,7 @@ export const UserSignUpController = async( req, res) => {
   try {
     const {email , username , password , name , bio }= req.body
     const avatar = req?.file
-    console.log(req);
+    
     
     if(!name || !bio ||!username || !password || !email ){
       return ResError(res , 400 , 'insufficient credentials')
@@ -49,6 +49,14 @@ export const UserSignUpController = async( req, res) => {
       })
     }
    
+    const UsernameRegex = /^[a-zA-Z0-9_@]{3,15}$/ ;
+    if(!UsernameRegex.test(username)){
+      return res.status(400).json({
+        error : 'username contains invalid character'
+      })
+    }
+
+
     const IsUsernameExists = await User.exists({
       username : username , 
     })
@@ -71,7 +79,10 @@ export const UserSignUpController = async( req, res) => {
       username ,
       name ,
       bio ,
-      avatar : 'https://img.freepik.com/free-vector/smiling-young-man-illustration_1308-174669.jpg'
+      avatar : {
+        public_id : result[0].public_id ,
+        url : result[0].url ,
+      }
     })
   
     return ResSuccess(res , 200 )
