@@ -4,6 +4,8 @@ import {AppBar, Backdrop, Box, IconButton, Toolbar, Tooltip, Typography} from '@
 import {Add as AddIcon , Logout as LogoutIcon, Group as GroupIcon, Menu as MenuIcon, Search as SearchIcon, Notifications} from '@mui/icons-material'
 import { setUser } from '../../redux/reducer/auth'
 import { useDispatch } from 'react-redux'
+import axios from 'axios' ;
+import Toast from 'react-hot-toast'
 
 const SearchDiallog = lazy(() => import('../specific/Search'))
 const NotificationDialog =  lazy(() => import('../specific/Notifications'))
@@ -22,8 +24,20 @@ function Header() {
   const openSearchDialog = () => { setIsSearch(prev => !prev)}
   const NavigateToGroup = () => { navigate('/groups')} 
   const OpenNotification = () => { setIsNotificationDialog( prev => !prev)}
-  const LogoutHandler = () => {
-    dispatch(setUser(null))
+  const LogoutHandler = async() => {
+    try {
+      const data = await axios.get('/api/v1/user/logout' , {
+        withCredentials : true 
+      })
+      console.log(data.data)
+      dispatch(setUser(null))
+      navigate('/login')
+      Toast.success('Logged Out successfully')
+    } catch (error) {
+      console.log(error);
+      
+      Toast.error("Something went wrong, Please try again.")
+    }
   }
 
   return (

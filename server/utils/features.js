@@ -1,5 +1,6 @@
 import { v2 as cloudinary} from "cloudinary";
 import { userSocketIDs } from "../app.js";
+import fs  from "fs";
 
 export const emitEvent = (req , event , users , data) => {
   console.log('emitting event' ,event);
@@ -35,6 +36,9 @@ export const uploadFilesTOCloudinary = async(files =[]) => {
       public_id : r.public_id ,
       url : r.secure_url 
     }))
+
+    files.forEach(f => fs.unlinkSync(f.path))
+
     return formattedResult
   } catch (error) {
     console.log( '---error-- while uploading files to cloudinary' ,error );

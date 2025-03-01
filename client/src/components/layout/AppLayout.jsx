@@ -1,16 +1,23 @@
 import React from 'react'
 import Header from './Header'
 import Title from '../../shared/Title'
-import { Grid } from '@mui/material'
+import { Grid, Skeleton } from '@mui/material'
 import ChatList from '../specific/CHatList'
 import { sampleData } from '../../shared/data'
 import { useParams } from 'react-router-dom'
 import Profile from '../specific/Profile'
+import { useMyChatsQuery } from '../../redux/api/api'
 
 const AppLayout = () => (Component) => { 
   return (props) => {
     const params = useParams() ;
     const {id} = params ;
+    
+
+    const {isLoading , data , isError , error  , refetch} = useMyChatsQuery("")
+
+    console.log(data , isLoading);
+    
 
     return (
       <>
@@ -25,7 +32,9 @@ const AppLayout = () => (Component) => {
             }} 
             height={'100%'}
           >  
-            <ChatList chats={sampleData} userId={id} handleDeleteChat={() => console.log('chat deleted')} />
+            {isLoading ? <Skeleton /> : 
+            <ChatList chats={data.data} userId={id} handleDeleteChat={() => console.log('chat deleted')} />
+            }
           </Grid>
 
           <Grid item xs={12}  sm={8} md={5} lg={6} height={'100%'} >

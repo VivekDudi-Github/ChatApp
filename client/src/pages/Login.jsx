@@ -66,20 +66,15 @@ function Login() {
 }
 
   return (
-    <Container component={'main'} maxWidth='xs' 
-    sx={{
-        height : '100vh' ,
-        display : 'flex' , 
-        justifyContent : 'center' , 
-        alignItems : 'center' 
-    }}
+    <div style={{maxWidth : '400px' , margin : 'auto'}}
     >
         <Paper elevation={3} 
         sx={{
             padding : 3 ,
             display : 'flex' ,
             flexDirection : 'column' ,
-            alignItems : 'center'
+            alignItems : 'center',
+            
             }}
         >
         {IsLogin ? 
@@ -106,7 +101,7 @@ function Login() {
             </> 
         :
         <>
-        <Typography sx={{marginTop : "2rem"}} variant='h5'>Sign Up</Typography>
+        <Typography sx={{height : ''}} variant='h5'>Sign Up</Typography>
             <form onSubmit={onSubmitSignUp}>
 
                 <Stack position={'relative'} width={'10rem'} margin={'auto'} >
@@ -163,7 +158,7 @@ function Login() {
     
     }
         </Paper>
-    </Container>
+    </div>
   )
 }
 

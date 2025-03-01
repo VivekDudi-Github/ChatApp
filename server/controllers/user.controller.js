@@ -56,7 +56,6 @@ export const UserSignUpController = async( req, res) => {
       })
     }
 
-
     const IsUsernameExists = await User.exists({
       username : username , 
     })
@@ -67,7 +66,6 @@ export const UserSignUpController = async( req, res) => {
       })
     }
 
-   
     const saltRounds = await bycrypt.genSalt()
     const HashedPassword = await bycrypt.hash(password , saltRounds )
 
