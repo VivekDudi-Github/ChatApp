@@ -47,7 +47,7 @@ function App() {
         <Routes>    
           <Route path="/" element={user ? <Home/> : <Navigate to={'/login'} />} />
           <Route path="/login" element={user ? <Navigate to={'/'} />  : <Login/>} />
-          <Route path="/chat/:id" element={user ? <Chat/> : <Navigate to={'/login'} />}/>
+          <Route path="/chat/:RoomId" element={user ? <Chat/> : <Navigate to={'/login'} />}/>
           <Route path="/groups" element={user ? <Group/> : <Navigate to={'/login'} />} />
           
           <Route path="*" element={<NotFound/>} />

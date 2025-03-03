@@ -4,23 +4,23 @@ import ChatItem from '../../shared/ChatItem'
 
 function ChatList({w = '100%' ,
   chats=[] , 
-  userId  , 
+  RoomId  , 
   onlineUsers = [] , 
-  newMessagesAlert = [{userId : '3' , count : 5}] ,
+  newMessagesAlert = [{_id : '3' , count : 5}] ,
   handleDeleteChat ,
 }) {
 return (
   <Stack  width={w} direction={'column'} overflow={'auto'} height={'100%'}>
     {chats?.map((data , index)=> {
-      const { avatar , user_id , name , groupChat , members} =  data ;
-      
-      const newMessages = newMessagesAlert.find(({userId}) => userId === user_id) ;
+      const { avatar , _id , name , groupChat , members} =  data ;
+    
+      const newMessages = newMessagesAlert.find(({_id}) => _id === _id) ;
 
-      const IsOnline = members?.some((member) => onlineUsers.includes(user_id)) ;
+      const IsOnline = members?.some((member) => onlineUsers.includes(_id)) ;
       
       return (
-        <ChatItem  key={index} newMessage={newMessages} name={name} _id={user_id} handleDeleteChatOpen={handleDeleteChat}  isOnline={IsOnline}
-          avatar={avatar} sameSender={userId === user_id}
+        <ChatItem  key={index} newMessage={newMessages} name={name} _id={_id} handleDeleteChatOpen={handleDeleteChat}  isOnline={IsOnline}
+          avatar={[avatar]} sameSender={RoomId === _id}
         />
       )
     })}

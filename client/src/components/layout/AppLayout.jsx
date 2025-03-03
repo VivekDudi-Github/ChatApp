@@ -3,16 +3,19 @@ import Header from './Header'
 import Title from '../../shared/Title'
 import { Grid, Skeleton } from '@mui/material'
 import ChatList from '../specific/CHatList'
-import { sampleData } from '../../shared/data'
 import { useParams } from 'react-router-dom'
 import Profile from '../specific/Profile'
 import { useMyChatsQuery } from '../../redux/api/api'
+import { useSelector } from 'react-redux'
 
 const AppLayout = () => (Component) => { 
   return (props) => {
     const params = useParams() ;
-    const {id} = params ;
+    const {RoomId} = params ;
     
+    const {user } = useSelector(state => state.auth) ;
+    const {isMobileMenuFriend ,} = useSelector(state => state.misc) ;
+
 
     const {isLoading , data , isError , error  , refetch} = useMyChatsQuery("")
 
@@ -33,7 +36,7 @@ const AppLayout = () => (Component) => {
             height={'100%'}
           >  
             {isLoading ? <Skeleton /> : 
-            <ChatList chats={data.data} userId={id} handleDeleteChat={() => console.log('chat deleted')} />
+            <ChatList chats={data.data} RoomId={RoomId} handleDeleteChat={() => console.log('chat deleted')} />
             }
           </Grid>
 

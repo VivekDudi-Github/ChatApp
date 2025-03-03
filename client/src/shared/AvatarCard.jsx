@@ -6,7 +6,7 @@ function AvatarCard({avatar = [] , max = 4}) {
     <Stack direction={'row'} spacing={0.5}>
       <AvatarGroup max={max} sx={{position : 'relative'}} >
         <Box height={'3rem'} width={'5rem'}>
-          {avatar.map((item , index) =>  
+          {avatar && avatar.map((item , index) =>  
             <Avatar 
               key={index}
               src={item}
