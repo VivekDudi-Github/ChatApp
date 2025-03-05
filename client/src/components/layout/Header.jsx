@@ -3,9 +3,10 @@ import {useNavigate} from 'react-router-dom'
 import {AppBar, Backdrop, Box, IconButton, Toolbar, Tooltip, Typography} from '@mui/material'
 import {Add as AddIcon , Logout as LogoutIcon, Group as GroupIcon, Menu as MenuIcon, Search as SearchIcon, Notifications} from '@mui/icons-material'
 import { setUser } from '../../redux/reducer/auth'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios' ;
 import Toast from 'react-hot-toast'
+import { setIsMobileMenu, setIsSearchOpen } from '../../redux/reducer/misc'
 
 const SearchDiallog = lazy(() => import('../specific/Search'))
 const NotificationDialog =  lazy(() => import('../specific/Notifications'))
@@ -15,13 +16,15 @@ function Header() {
   const navigate = useNavigate() ;
   const dispatch = useDispatch() ;
 
-  const [IsSearch ,setIsSearch] = useState(false) ;
+  const {isMobileMenu , isSearchOpen } = useSelector(state => state.misc) ;
   const [IsNotificationDialog ,setIsNotificationDialog] = useState(false) ;
   const [IsNewGroupDialog , setIsNewGroupDialog] = useState(false) ;
 
-  const handleMobile = () => {}
+  
+
+  const handleMobile = () => {dispatch(setIsMobileMenu(true))}
   const openNewGroup = () => { setIsNewGroupDialog( prev => !prev)}
-  const openSearchDialog = () => { setIsSearch(prev => !prev)}
+  const openSearchDialog = () => {dispatch(setIsSearchOpen(true))}
   const NavigateToGroup = () => { navigate('/groups')} 
   const OpenNotification = () => { setIsNotificationDialog( prev => !prev)}
   const LogoutHandler = async() => {
@@ -71,7 +74,7 @@ function Header() {
       </AppBar>
     </Box>
 
-    {IsSearch && (
+    {isSearchOpen && (
       <Suspense fallback={<Backdrop  open/>}>
         <SearchDiallog />
       </Suspense>

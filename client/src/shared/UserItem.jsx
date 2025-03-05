@@ -1,9 +1,10 @@
 import { Add as AddIcon , RemoveCircle } from '@mui/icons-material';
 import { Avatar, IconButton, ListItem, Stack, Typography } from '@mui/material';
 import React, { memo } from 'react'
+import AvatarCard from './AvatarCard';
 
 function UserItem({user , styling={} , handler , UserAdded  ,handlerIsLoading }) {
-  const {name , user_id , avatar} = user ;
+  const {name , _id , avatar} = user ;
   
   return (
     <ListItem
@@ -15,7 +16,7 @@ function UserItem({user , styling={} , handler , UserAdded  ,handlerIsLoading })
     }}>
     
       <Stack direction={'row'} alignItems={'center'} spacing={'1rem'} width={'100%'} {...styling}>
-        <Avatar/>
+        <AvatarCard avatar={[avatar]}/>
         <Typography variant='body1' sx={{flexGrow : 1 , display : 'w'}}>
           {name}
         </Typography>
@@ -25,7 +26,7 @@ function UserItem({user , styling={} , handler , UserAdded  ,handlerIsLoading })
             bgcolor : 'primary.dark'
           }
         }}
-        onClick={() => handler(user_id)} disabled={handlerIsLoading}
+        onClick={() => handler(_id)} disabled={handlerIsLoading}
         >
           {UserAdded ? <RemoveCircle /> : <AddIcon />}
         </IconButton>

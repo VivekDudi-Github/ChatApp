@@ -1,31 +1,44 @@
 import React from 'react'
 import Header from './Header'
 import Title from '../../shared/Title'
-import { Grid, Skeleton } from '@mui/material'
+import { Drawer, Grid, Skeleton } from '@mui/material'
 import ChatList from '../specific/CHatList'
 import { useParams } from 'react-router-dom'
 import Profile from '../specific/Profile'
 import { useMyChatsQuery } from '../../redux/api/api'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { setIsMobileMenu} from '../../redux/reducer/misc'
+import { useErrors } from '../hook/hooks'
 
 const AppLayout = () => (Component) => { 
   return (props) => {
+    const dispatch = useDispatch() ;
     const params = useParams() ;
     const {RoomId} = params ;
     
     const {user } = useSelector(state => state.auth) ;
-    const {isMobileMenuFriend ,} = useSelector(state => state.misc) ;
+    const {isMobileMenu} = useSelector(state => state.misc) ;
 
+    const handleMobileClose = () => dispatch(setIsMobileMenu(false))
+    const handleMobileOpen = () => dispatch(setIsMobileMenu(true))
+        
 
     const {isLoading , data , isError , error  , refetch} = useMyChatsQuery("")
 
-    console.log(data , isLoading);
+    useErrors([{isError , error}])
     
 
     return (
       <>
         <Header />
         <Title Title='ChatApp' />
+
+        {isLoading ? <Skeleton/> : (
+            <Drawer open={isMobileMenu} onClose={handleMobileClose} >
+              <ChatList w='70vw'  chats={data.data} RoomId={RoomId} handleDeleteChat={() => console.log('chat deleted')} />
+            </Drawer>
+          ) 
+        }
 
         <Grid  container height={"calc(100vh - 4rem)"}>
         
