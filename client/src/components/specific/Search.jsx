@@ -3,7 +3,9 @@ import React, { useEffect, useState } from 'react'
 import UserItem from '../../shared/UserItem'
 import { useDispatch, useSelector } from 'react-redux'
 import { setIsSearchOpen } from '../../redux/reducer/misc'
-import { useLazySearchUsersQuery } from '../../redux/api/api'
+import { useLazySearchUsersQuery, useSendFreindRequestMutation } from '../../redux/api/api'
+import { toast } from "react-hot-toast";
+import { UseAsyncMutation } from '../hook/hooks'
 
 function Search() {
   const dispatch = useDispatch() ;
@@ -11,11 +13,14 @@ function Search() {
   
   const [users , setUsers] = useState([])
   const [searchValue , setSearchValue] = useState('')
-  const addFriendHandler = () => {}
+  
   const IsLoadingSendFreindRequest = false ;
 
 
-  const [searchUser] = useLazySearchUsersQuery()
+  const [sendFriendRequest] = UseAsyncMutation(useSendFreindRequestMutation)
+
+
+  const [searchUser ,isLoading] = useLazySearchUsersQuery()
 
   useEffect(() => {
     const timoutId = setTimeout(() => {
@@ -29,7 +34,7 @@ function Search() {
   } , [searchValue])
 
   return (
-    <Dialog  open={isSearchOpen} onClose={() => dispatch(setIsSearchOpen(false))} >
+    <Dialog open={isSearchOpen} onClose={() => dispatch(setIsSearchOpen(false))} >
       <Stack p={'2rem'} direction={'column'} width={'25rem'} >
         <DialogTitle textAlign={'center'}>
           Find People

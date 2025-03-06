@@ -182,18 +182,18 @@ export const sendRequest = async(req, res) => {
     const {id} = req.body ;
     
     if(typeof id !== 'string' || !id ){
-      return ResError(res , 400 , "Reciever's id not available")
+      return ResError(res , 400 , "Invalid Data Found")
     }
 
     const arleardyRequest = await Request.exists({
       $or: [
-        {reciever : id , sender : req.userId , status : { $in : ['pending' , 'accepted']} } ,
-        {sender : id , reciever : req.userId , status : { $in : ['pending' , 'accepted']}}
+        {reciever : id , sender : req.userId , status : { $in : ['pending' , 'accepted']}} ,
+        {sender : id , reciever : req.userId , status : { $in : ['pending' , 'accepted']}} ,
       ] ,
     })
 
     if(arleardyRequest){
-      return ResError(res, 400 , 'you already had a request ')
+      return ResError(res, 400 , 'You already had a request ')
     }
 
     const makeRequest = await Request.findOneAndUpdate({
@@ -212,7 +212,7 @@ export const sendRequest = async(req, res) => {
 
     emitEvent(req , NEW_REQUEST , [id] )
 
-    return ResSuccess(res, 200 , makeRequest )
+    return ResSuccess(res, 200 , 'Request Sent' )
   }catch(error){
     console.log('error while SENDING REQUEST' , error);
     return ResError(res, 500 , 'internal server error')

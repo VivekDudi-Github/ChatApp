@@ -19,11 +19,21 @@ const api = createApi({
       }) ,
       providesTags : ['User'] ,
     }) , 
-    createNewGroup : builder.query({
-      query : 
+    sendFreindRequest : builder.mutation({
+      query : (data) => ({
+        url : "/user/request" ,
+        method : "PUT" ,
+        credentials : "include"  ,
+        body : data
+      }) , 
+      invalidatesTags : ["User"]
     })
   })
 })
 
 export default api ;
-export const { useMyChatsQuery , useLazySearchUsersQuery } = api
+export const { 
+  useMyChatsQuery , 
+  useLazySearchUsersQuery ,
+  useSendFreindRequestMutation
+} = api
