@@ -14,10 +14,12 @@ function Search() {
   const [users , setUsers] = useState([])
   const [searchValue , setSearchValue] = useState('')
   
-  const IsLoadingSendFreindRequest = false ;
 
+  const [sendFriendRequest , IsLoadingSendFreindRequest ] = UseAsyncMutation(useSendFreindRequestMutation)
 
-  const [sendFriendRequest] = UseAsyncMutation(useSendFreindRequestMutation)
+  const addFriendHandler = async(id) => {
+    await sendFriendRequest( 'sending friend request...' , {id})
+  }
 
 
   const [searchUser ,isLoading] = useLazySearchUsersQuery()

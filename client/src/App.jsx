@@ -31,8 +31,6 @@ function App() {
         dispatch(setUser(data.data))
       } catch (error) {
         dispatch(setUser(null))
-        console.log(error);
-        toast.error(error.response.data.error)
       } 
     }
     fetchUser()

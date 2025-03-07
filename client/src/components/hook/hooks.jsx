@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { useEffect } from "react";
+import { useEffect , useState } from "react";
 
 const useErrors = (errors = []) => {
   useEffect(() => {
@@ -24,9 +24,10 @@ const UseAsyncMutation = (mutationHook) => {
   const executeMutation = async (toastMessage , ...args) => {
     setIsLoading(true) ;
     const toastId = toast.loading(toastMessage || "Upadting data.." )            
-
+    
+    
     try {
-      const res  = await mutate(args)
+      const res  = await mutate(...args)
     if(res.data){
         toast.success(res?.data?.data , {id : toastId})
         setData(res.data)

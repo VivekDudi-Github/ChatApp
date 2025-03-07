@@ -1,9 +1,14 @@
 import { Avatar, Button, Dialog, DialogTitle, ListItem, Stack, Typography } from '@mui/material';
 import React, { memo } from 'react';
 import { sampleNotification } from '../../shared/data';
-
+import { useErrors } from '../hook/hooks';
+import { useGetNotificationQuery } from '../../redux/api/api';
 
 const Notifications = () => {
+
+  const {isLoading, data , error , isError} =  useGetNotificationQuery() ;
+  useErrors([{error , isError}])
+
   const FreindRequestHandler = (_id , accept) => {}
   
   return (

@@ -7,9 +7,12 @@ import {
  } from "@mui/icons-material";
 
 import moment from 'moment'
+import { useSelector } from 'react-redux';
 
 function Profile() {
-  return (
+  const {user , loader} = useSelector(state => state.auth)
+  
+  return loader ? 
     <Stack spacing={'2rem'} direction={'column'} alignItems={'center'}>
       <Avatar
       sx={{
@@ -19,17 +22,29 @@ function Profile() {
         border: '5px solid white'
       }} />
 
-      <ProfileCard heading={'Bio'} text={'Mera naam Ajwan sing h'}  />
-      <ProfileCard heading={'Usernmae'} text={'miAjwan_sing'} Icon={<EmailIcon />} />
-      <ProfileCard heading={'Name'} text={'Ajwan Sing'} Icon={<FaceIcon />} />
-      <ProfileCard heading={'Joined'} text={moment('2-12-2024').fromNow()} Icon={<CalendarMonth />} />
+      <ProfileCard heading={'Loading..'}  /> 
     </Stack>
-  )
+      :
+    <Stack spacing={'2rem'} direction={'column'} alignItems={'center'}>
+      <Avatar src={user?.avatar?.url ?  user.avatar.url : user.avatar}
+      sx={{
+        width : 200 , 
+        height : 200 , 
+        objectFit :'contain' , 
+        border: '5px solid white'
+      }} />
+
+      <ProfileCard heading={'Bio'} text={user.bio || ''}  />
+      <ProfileCard heading={'Usernmae'} text={user.username} Icon={<EmailIcon />} />
+      <ProfileCard heading={'Name'} text={user.name} Icon={<FaceIcon />} />
+      <ProfileCard heading={'Joined'} text={moment(user.createdAt).fromNow()} Icon={<CalendarMonth />} /> 
+    </Stack>
+    
 }
 
 export default Profile
 
-const ProfileCard = ({text , Icon , heading}) => {
+const ProfileCard = ({text , Icon , heading , loader}) => {
   return (
     <Stack 
     direction={'row'}
@@ -39,7 +54,7 @@ const ProfileCard = ({text , Icon , heading}) => {
     >
       {Icon && Icon }
       <Stack >
-        <Typography variant='body1'>{text}</Typography>
+        <Typography variant='body2'>{text}</Typography>
         <Typography variant='caption' color='gray'>
           {heading}
         </Typography>
@@ -47,3 +62,4 @@ const ProfileCard = ({text , Icon , heading}) => {
     </Stack>
   )
 }
+

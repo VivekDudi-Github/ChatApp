@@ -11,7 +11,8 @@ const api = createApi({
         url : '/chat/rooms' ,
         credentials : 'include'
       })
-    }) , 
+    }) ,
+
     SearchUsers : builder.query({
       query : (name) => ({
         url : `/user/search/?name=${name}` ,
@@ -19,6 +20,16 @@ const api = createApi({
       }) ,
       providesTags : ['User'] ,
     }) , 
+
+    getNotification : builder.query({
+      query : () => ({
+        url : `/user/notifications` ,
+        credentials : 'include' ,
+      }) ,
+      keepUnusedDataFor : 0 ,
+    }) , 
+
+
     sendFreindRequest : builder.mutation({
       query : (data) => ({
         url : "/user/request" ,
@@ -35,5 +46,6 @@ export default api ;
 export const { 
   useMyChatsQuery , 
   useLazySearchUsersQuery ,
-  useSendFreindRequestMutation
+  useSendFreindRequestMutation , 
+  useGetNotificationQuery ,
 } = api
