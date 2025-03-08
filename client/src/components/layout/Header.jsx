@@ -6,7 +6,7 @@ import { setUser } from '../../redux/reducer/auth'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios' ;
 import Toast from 'react-hot-toast'
-import { setIsMobileMenu, setIsSearchOpen } from '../../redux/reducer/misc'
+import { setIsMobileMenu, setIsNotitficationMenu, setIsSearchOpen } from '../../redux/reducer/misc'
 
 const SearchDiallog = lazy(() => import('../specific/Search'))
 const NotificationDialog =  lazy(() => import('../specific/Notifications'))
@@ -16,17 +16,17 @@ function Header() {
   const navigate = useNavigate() ;
   const dispatch = useDispatch() ;
 
-  const {isMobileMenu , isSearchOpen } = useSelector(state => state.misc) ;
+  const {isMobileMenu , isSearchOpen , isNotificationMenu } = useSelector(state => state.misc) ;
   const [IsNotificationDialog ,setIsNotificationDialog] = useState(false) ;
   const [IsNewGroupDialog , setIsNewGroupDialog] = useState(false) ;
 
   
 
-  const handleMobile = () => {dispatch(setIsMobileMenu(true))}
-  const openNewGroup = () => { setIsNewGroupDialog( prev => !prev)}
-  const openSearchDialog = () => {dispatch(setIsSearchOpen(true))}
-  const NavigateToGroup = () => { navigate('/groups')} 
-  const OpenNotification = () => { setIsNotificationDialog( prev => !prev)}
+  const handleMobile = () => {dispatch(setIsMobileMenu(true))} ;
+  const openNewGroup = () => { setIsNewGroupDialog( prev => !prev)} ;
+  const openSearchDialog = () => {dispatch(setIsSearchOpen(true))} ;
+  const NavigateToGroup = () => { navigate('/groups')} ;
+  const OpenNotification = () => { dispatch(setIsNotitficationMenu(true))} ;
   const LogoutHandler = async() => {
     try {
       const data = await axios.get('/api/v1/user/logout' , {
@@ -84,7 +84,7 @@ function Header() {
         <NewGroupDialog />
       </Suspense>
     )}
-    {IsNotificationDialog && (
+    {isNotificationMenu && (
       <Suspense fallback={<Backdrop  open/>}>
         <NotificationDialog />
       </Suspense>

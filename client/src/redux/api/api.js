@@ -38,6 +38,16 @@ const api = createApi({
         body : data
       }) , 
       invalidatesTags : ["User"]
+    }) ,
+
+    AnswerFriendRequest :  builder.mutation({
+      query : (data) => ({
+        url : '/user/request' ,
+        method : "PATCH" ,
+        credentials : 'include'  , 
+        body : data 
+      }) ,
+      invalidatesTags : ["User"]
     })
   })
 })
@@ -47,5 +57,6 @@ export const {
   useMyChatsQuery , 
   useLazySearchUsersQuery ,
   useSendFreindRequestMutation , 
+  useAnswerFriendRequestMutation ,
   useGetNotificationQuery ,
 } = api

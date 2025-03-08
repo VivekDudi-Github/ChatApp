@@ -21,7 +21,6 @@ function Search() {
     await sendFriendRequest( 'sending friend request...' , {id})
   }
 
-
   const [searchUser ,isLoading] = useLazySearchUsersQuery()
 
   useEffect(() => {

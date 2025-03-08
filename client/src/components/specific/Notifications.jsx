@@ -1,35 +1,63 @@
-import { Avatar, Button, Dialog, DialogTitle, ListItem, Stack, Typography } from '@mui/material';
+import { Avatar, Button, Dialog, DialogTitle, ListItem, Skeleton, Stack, Typography } from '@mui/material';
 import React, { memo } from 'react';
-import { sampleNotification } from '../../shared/data';
 import { useErrors } from '../hook/hooks';
-import { useGetNotificationQuery } from '../../redux/api/api';
+import { useAnswerFriendRequestMutation, useGetNotificationQuery } from '../../redux/api/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { setIsNotitficationMenu } from "../../redux/reducer/misc";
+import toast from 'react-hot-toast';
 
 const Notifications = () => {
-
+  const dispatch =  useDispatch() ;
+  const {isNotificationMenu} = useSelector(state => state.misc)
   const {isLoading, data , error , isError} =  useGetNotificationQuery() ;
   useErrors([{error , isError}])
 
-  const FreindRequestHandler = (_id , accept) => {}
+  const [answerRequest] = useAnswerFriendRequestMutation() ; 
+
+  const FreindRequestHandler = async(_id , response) => {
+    try {
+      const res  = await answerRequest({id : _id , response})
+      if(res?.data?.success == true){
+        response =='accepted' ? 
+        toast.success('Request Accepted') 
+        :
+        toast.error('Request Refused')
+      }else {
+        toast.error(res?.error?.data?.error);
+      }
+
+    } catch (error) {
+      console.log(error);
+      toast.error(error || 'Something went wrong')      
+    }
+  }
   
+
+
   return (
-    <Dialog open>
+    <Dialog open={isNotificationMenu} onClose={() => dispatch(setIsNotitficationMenu(false))} >
       <Stack p={{ xs : '1rem' , sm : '2rem'}} maxWidth={'25rem'}>
         <DialogTitle>
           Notifications
         </DialogTitle>
-          {!sampleNotification.length > 0 ? 
-          <Typography>No Notifications</Typography> 
+          {isLoading ? <Skeleton/> 
           :
-          sampleNotification.map((e , i ) => {
-            return (
-              <NotificationItem key={e.user_id}  sender={e.sender} user_id={e.user_id} handler={FreindRequestHandler}/>
-            )
-          })}
+          <>
+            {!data?.data.length > 0 ? 
+              <Typography>No Notifications</Typography> 
+              :
+              data.data.map((n , i ) => {
+                return (
+                  <NotificationItem key={n._id}  sender={n.sender} handler={FreindRequestHandler}/>
+                )
+             })}
+          </>
+          }
       </Stack>
     </Dialog>
   )
 }
-const NotificationItem = ({sender , user_id} , handler) => {
+const NotificationItem = ({sender , handler }) => {
   return (
     <>
       <ListItem
@@ -56,8 +84,8 @@ const NotificationItem = ({sender , user_id} , handler) => {
           <Stack direction={{
             xs : 'column' ,
           }}>
-            <Button onClick={() => handler(user_id , true)}>Accept</Button>
-            <Button color='error' onClick={() => handler(user_id , false)}>Refuse</Button>
+            <Button onClick={() => handler(sender._id , 'accepted')}>Accept</Button>
+            <Button color='error' onClick={() => handler(sender._id , 'rejected')}>Refuse</Button>
           </Stack>
         </Stack>
       </ListItem>

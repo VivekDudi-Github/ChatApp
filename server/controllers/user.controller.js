@@ -20,7 +20,7 @@ const ResSuccess = (res , code , data) => {
   })
 }
 
-export const UserSignUpController = async( req, res) => {
+const UserSignUpController = async( req, res) => {
   try {
     const {email , username , password , name , bio }= req.body
     const avatar = req?.file
@@ -92,7 +92,7 @@ export const UserSignUpController = async( req, res) => {
   }
 }
 
-export const UserloginController = async( req, res) => {
+const UserloginController = async( req, res) => {
   try {
     const {email , password} = req.body ;
     
@@ -133,7 +133,7 @@ export const UserloginController = async( req, res) => {
   }
 }
 
-export const UserLogOutController = async(req, res) => {
+const UserLogOutController = async(req, res) => {
   try {
     res.clearCookie('refreshToken')
 
@@ -144,7 +144,7 @@ export const UserLogOutController = async(req, res) => {
   }
 }
 
-export const CheckAuth =async (req, res) => {
+const CheckAuth = async (req, res) => {
   if(req.userId){
     const user = await User.findById(req.userId).select(' -password -refreshToken')
     return ResSuccess(res , 200 , user)
@@ -153,7 +153,7 @@ export const CheckAuth =async (req, res) => {
   }
 }
 
-export const UserSearchController = async(req , res) => {
+const UserSearchController = async(req , res) => {
   try {
     const {name = ''} =  req.query ;
     
@@ -177,7 +177,7 @@ export const UserSearchController = async(req , res) => {
   }
 }
 
-export const sendRequest = async(req, res) => {
+const sendRequest = async(req, res) => {
   try{
     const {id} = req.body ;
     
@@ -220,7 +220,7 @@ export const sendRequest = async(req, res) => {
   }
 }
 
-export const AnswersRequest = async(req, res) => {
+const AnswersRequest = async(req, res) => {
   try {
     const {id , response} = req.body ;
     if(typeof id !== 'string' || !id ){
@@ -230,29 +230,38 @@ export const AnswersRequest = async(req, res) => {
       return ResError(res , 400 , "Response Is incorrect")
     }
 
-    const request =  await Request.findOneAndUpdate({
-      reciever : id ,
-      sender : req.userId 
-    } , 
-    {
-      status : response 
-    } , 
-    { new : true}
-  )
+    const request = await Request.findOne({
+      sender : id ,
+      reciever : req.userId ,
+      status : 'pending'
+    })
 
-  if(!request){
-    return ResError(res , 404 , 'no request found')
-  }
+    if(!request){
+      return ResError(res ,404 , "No request was found")
+    }
 
-    return ResSuccess(res , 200 , request)
+    if(response == 'accepted'){
+      const newRequest = await Request.findByIdAndUpdate(request._id , 
+        {
+          status : 'accepted'
+        } , 
+        {new : true}
+      )
+      return ResSuccess(res ,200 ,newRequest)
+    }
 
+    if(response == 'rejected'){
+      await Request.findByIdAndDelete({_id : request._id})
+      
+      return ResSuccess(res ,200 , 'Request Refused')
+    }
   } catch (error) {
     console.log('error while ANSWERING REQUEST' , error);
     return ResError(res, 500 , 'internal server error')
   }
 }
 
-export const GetMyFriends = async( req, res) => {
+const GetMyFriends = async( req, res) => {
   try {
     const {GroupId} = req.query ;
 
@@ -282,3 +291,26 @@ export const GetMyFriends = async( req, res) => {
     return ResError(res, 500 ,'internal server error')
   }
 }
+
+const GetMyNotifications = async(req ,res) => {
+  try {
+    const requests = await Request.find({status : 'pending' , reciever : req.userId}).populate('sender' , 'avatar name')
+    
+    return ResSuccess(res ,200 , requests)
+  } catch (error) {
+    console.log('error while SEND_MY_NOTIFICATIONS' , error)
+    return ResError(res, 500 ,'internal server error')
+  }
+}
+
+export {
+  GetMyFriends , 
+  AnswersRequest , 
+  sendRequest , 
+  UserLogOutController , 
+  UserSearchController , 
+  UserSignUpController , 
+  UserloginController , 
+  GetMyNotifications ,
+  CheckAuth ,
+ }
