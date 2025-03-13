@@ -9,6 +9,7 @@ import { useMyChatsQuery } from '../../redux/api/api'
 import { useDispatch, useSelector } from 'react-redux'
 import { setIsMobileMenu} from '../../redux/reducer/misc'
 import { useErrors } from '../hook/hooks'
+import { getSocket } from '../../socket'
 
 const AppLayout = () => (Component) => { 
   return (props) => {
@@ -22,6 +23,8 @@ const AppLayout = () => (Component) => {
     const handleMobileClose = () => dispatch(setIsMobileMenu(false))
     const handleMobileOpen = () => dispatch(setIsMobileMenu(true))
         
+    const socket =  getSocket() ;
+    
 
     const {isLoading , data , isError , error  , refetch} = useMyChatsQuery("")
 
@@ -54,8 +57,9 @@ const AppLayout = () => (Component) => {
           </Grid>
 
           <Grid item xs={12}  sm={8} md={5} lg={6} height={'100%'} >
-            <Component {...props} />
+            <Component room={RoomId} {...props} />
           </Grid>
+
           <Grid item md={4} lg={3} height={'100%'} 
             sx={{
               display : {xs :'none' , md : 'block'} ,
@@ -64,7 +68,6 @@ const AppLayout = () => (Component) => {
             }}>
             <Profile />
           </Grid>
-
         </Grid>
       </>
     )

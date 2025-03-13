@@ -14,13 +14,19 @@ import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from './constants/event.js';
 import { getSockets } from './utils/features.js';
 import { Message } from './models/message.model.js';
 import dotenv from 'dotenv';
+import { SocketAuthenticator } from './middlewares/socketAuth.js';
 
 dotenv.config()
 
 const port = process.env.PORT
 const app = express() ;
 const server = createServer(app) 
-const io = new Server(server ,{})
+const io = new Server(server ,{
+  cors : {
+    origin : "http://localhost:5173" ,
+    credentials : true 
+  }
+})
 const userSocketIDs = new Map 
 
 
@@ -31,29 +37,29 @@ app.use(cookieParser())
 app.use('/api/v1/user' ,userRouter)
 app.use('/api/v1/chat' ,chatRouter)
 
-io.use((socket , next) => {
-  
-})
+io.use((socket, next) => {
+  cookieParser()(
+    socket.request,
+    socket.request.res,
+    async (err) => await SocketAuthenticator(err, socket, next)
+  );
+});
 
 io.on('connection' ,(socket) => {
-  const user = { _id: "userId" ,name : "mera naam" }
    
-  userSocketIDs.set(user._id , socket.id)
+  userSocketIDs.set(socket.user._id.toString() , socket.id)
 
   socket.on(NEW_MESSAGE , async({room , members , messages}) => {
     const messgaeForRealTime = {
       _id :  uuid() ,
-      sender : {
-        _id : user._id ,
-        name : user.name 
-      } ,
+      sender : socket.user._id ,
       room : room ,
       createdAt : new Date().toString() ,
       messages 
     }
     
     const messageForDb = {
-      sender : user._id ,
+      sender : socket.user._id ,
       content : 'messages' ,
       room : room
     }
@@ -75,7 +81,7 @@ io.on('connection' ,(socket) => {
 
   socket.on("disconnect" , () => {
     console.log("user dissconnected");  
-    userSocketIDs.delete(user._id.toString())
+    userSocketIDs.delete(socket.user._id.toString())
   })
 })
 

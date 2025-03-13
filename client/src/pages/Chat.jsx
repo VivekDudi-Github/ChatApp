@@ -1,18 +1,42 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import AppLayout from '../components/layout/AppLayout'
-import { IconButton, Stack } from '@mui/material'
+import { IconButton, Skeleton, Stack } from '@mui/material'
 import { AttachFile, Send as SendIcon} from '@mui/icons-material';
 import { InputBox } from '../components/styles/StylesComponent';
 import { SampleMessage } from '../shared/data';
 import MessageComponent from '../shared/MessageComponent';
+import {getSocket} from '../socket'
+import { NEW_MESSAGE } from '../components/event';
+import { useGetRoomDetailsQuery } from '../redux/api/api';
 
 const user = {
   name : 'Abc' , 
   user_id : '12345'
 }
-function Chat() {
+function Chat({room}) {
   const containerRef = useRef(null) ;
-  return (
+
+  
+  
+  const [ input , setInput] = useState('') ;
+  
+  const socket = getSocket() ;
+  const roomDetails = useGetRoomDetailsQuery({room , skip : !room})
+
+
+  const members = roomDetails?.data?.data?.members ;
+  const SubmitHanlderMessage = (e) => {
+    e => e.preventDefault() ;
+
+    if(!input) return ;
+
+    socket.emit(NEW_MESSAGE ,{room : room , members : members , message : input })
+    setInput('')
+  }
+
+  return roomDetails.isLoading ? 
+  (<Skeleton/>
+    ) : (
     <>
       <Stack
       boxSizing={"border-box"}
@@ -35,7 +59,7 @@ function Chat() {
         }
       
       </Stack>
-      <form onSubmit={e => e.preventDefault()} style={{height : '10%'}}>
+      <form onSubmit={SubmitHanlderMessage} style={{height : '10%'}}>
         <Stack bgcolor={'rgba(0,0,0,0.2)'} direction={'row'} height={'100%'} p={'0.5rem'} alignItems={'center'} position={'relative'}>
           <IconButton sx={{
             position : 'absolute' , 
@@ -45,7 +69,7 @@ function Chat() {
             <AttachFile />
           </IconButton>
           
-          <InputBox />
+          <InputBox placeholder='Type message here...' onChange={e => setInput(e.target.value)} />
 
           <IconButton type='submit' sx={{
             backgroundColor : '#000' , 

@@ -29,7 +29,6 @@ const api = createApi({
       keepUnusedDataFor : 0 ,
     }) , 
 
-
     sendFreindRequest : builder.mutation({
       query : (data) => ({
         url : "/user/request" ,
@@ -48,7 +47,21 @@ const api = createApi({
         body : data 
       }) ,
       invalidatesTags : ["User"]
-    })
+    }) ,
+
+    getRoomDetails : builder.query({
+      query : ({room , populate =false}) => {
+        let url = `/chat/${room}`
+        if(populate) url+"?populate=true"
+
+
+        return {
+          url : url ,
+          credentials : 'include' ,
+        }} ,
+      providesTags : ["Chats"] ,
+    }) , 
+
   })
 })
 
@@ -59,4 +72,5 @@ export const {
   useSendFreindRequestMutation , 
   useAnswerFriendRequestMutation ,
   useGetNotificationQuery ,
+  useGetRoomDetailsQuery ,
 } = api

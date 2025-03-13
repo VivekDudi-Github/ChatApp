@@ -3,9 +3,8 @@ import {ErrorHandler} from '../utils/utils.js'
 import jwt from "jsonwebtoken";
 
 const SocketAuthenticator = async(err ,socket , next) => {
-  try {
+  try {    
     if(err) return next(err)
-    
     
       
     const authToken = socket.request.cookies.refreshToken ;
