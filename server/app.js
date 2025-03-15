@@ -48,19 +48,23 @@ io.use((socket, next) => {
 io.on('connection' ,(socket) => {
    
   userSocketIDs.set(socket.user._id.toString() , socket.id)
-
-  socket.on(NEW_MESSAGE , async({room , members , messages}) => {
+  
+  
+  socket.on(NEW_MESSAGE , async({room , members , message}) => {
+    
+    
     const messgaeForRealTime = {
       _id :  uuid() ,
       sender : socket.user._id ,
       room : room ,
       createdAt : new Date().toString() ,
-      messages 
+      message 
     }
+    console.log(message);
     
     const messageForDb = {
       sender : socket.user._id ,
-      content : 'messages' ,
+      content : message ,
       room : room
     }
     const membersSocket = getSockets(members)

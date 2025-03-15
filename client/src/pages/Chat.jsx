@@ -1,13 +1,15 @@
-import React, { useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import AppLayout from '../components/layout/AppLayout'
 import { IconButton, Skeleton, Stack } from '@mui/material'
 import { AttachFile, Send as SendIcon} from '@mui/icons-material';
 import { InputBox } from '../components/styles/StylesComponent';
-import { SampleMessage } from '../shared/data';
+
 import MessageComponent from '../shared/MessageComponent';
 import {getSocket} from '../socket'
 import { NEW_MESSAGE } from '../components/event';
 import { useGetRoomDetailsQuery } from '../redux/api/api';
+import {UseSocket} from '../components/hook/hooks'
+
 
 const user = {
   name : 'Abc' , 
@@ -17,6 +19,7 @@ function Chat({room}) {
   const containerRef = useRef(null) ;
 
   
+  const [messages , setMessages] = useState([]) ;
   
   const [ input , setInput] = useState('') ;
   
@@ -26,13 +29,23 @@ function Chat({room}) {
 
   const members = roomDetails?.data?.data?.members ;
   const SubmitHanlderMessage = (e) => {
-    e => e.preventDefault() ;
+    e.preventDefault() ;
 
     if(!input) return ;
 
     socket.emit(NEW_MESSAGE ,{room : room , members : members , message : input })
     setInput('')
   }
+
+
+  const NewMessageListner = useCallback((data) => {
+    setMessages(prev => [...prev , data.message])
+   } , [])
+   
+  const EventHandler = { [NEW_MESSAGE] : NewMessageListner}
+
+  UseSocket(socket, EventHandler)
+
 
   return roomDetails.isLoading ? 
   (<Skeleton/>
@@ -52,14 +65,14 @@ function Chat({room}) {
       >
 
         {
-          SampleMessage.map((m ,index) => {
+          messages.map((m ,index) => {
 
-            return <MessageComponent key={ index} message={m} user={user}/>
+            return <MessageComponent key={ index} content={m} user={user}/>
           })
         }
       
       </Stack>
-      <form onSubmit={SubmitHanlderMessage} style={{height : '10%'}}>
+      <form onSubmit={(e) => SubmitHanlderMessage(e)} style={{height : '10%'}}>
         <Stack bgcolor={'rgba(0,0,0,0.2)'} direction={'row'} height={'100%'} p={'0.5rem'} alignItems={'center'} position={'relative'}>
           <IconButton sx={{
             position : 'absolute' , 
@@ -69,7 +82,7 @@ function Chat({room}) {
             <AttachFile />
           </IconButton>
           
-          <InputBox placeholder='Type message here...' onChange={e => setInput(e.target.value)} />
+          <InputBox placeholder='Type message here...' value={input} onChange={e => setInput(e.target.value)} />
 
           <IconButton type='submit' sx={{
             backgroundColor : '#000' , 

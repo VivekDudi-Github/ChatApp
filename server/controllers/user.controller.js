@@ -1,5 +1,5 @@
 import { User } from "../models/user.model.js"
-import bycrypt from "bcrypt";
+import bycrypt from "bcryptjs";
 import { generateRefreshTokenSetCookies } from "../utils/generateToken.js";
 import { Room } from "../models/room.model.js";
 import {Request} from '../models/request.model.js'

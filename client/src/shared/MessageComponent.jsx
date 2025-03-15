@@ -4,27 +4,28 @@ import React, { memo } from 'react'
 import { fileFormat } from '../components/hook/features';
 import RenderAttachments from './RenderAttachments';
 
-function MessageComponent({message , user}) {
-  const {sender , content , createdAt , attachments} = message ;
+function MessageComponent({content , user}) {
+  const {sender , message , createdAt , attachments} = content ;
+  console.log(content);
   
   
   const date = moment(createdAt).fromNow() ;
   return (
     <div style={{
-      alignSelf : sender.user_id === user.user_id ? "flex-end" : "flex-start" ,
+      alignSelf : sender === user._id ? "flex-end" : "flex-start" ,
       color : 'black' , 
       borderRadius : '5px' , 
       padding : '0.5rem' , 
       width : 'fit-content'
       
     }}>
-    {sender.user_id !== user.user_id && 
-    <Typography color='rgba(0,0,200,0.5)' fontWeight={600} variant='caption' >{sender.name}</Typography>
+    {sender !== user._id && 
+    <Typography color='rgba(0,0,200,0.5)' fontWeight={600} variant='caption' >{sender}</Typography>
     }
 
-    {sender && <Typography>{content}</Typography>}
+    {sender && <Typography>{message}</Typography>}
 
-    {attachments.length > 0 && attachments.map((a , index) => {
+    {attachments && attachments.map((a , index) => {
       const url =  a.url ;
       const file = fileFormat(url)
       
