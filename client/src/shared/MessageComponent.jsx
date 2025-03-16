@@ -6,8 +6,6 @@ import RenderAttachments from './RenderAttachments';
 
 function MessageComponent({content , user}) {
   const {sender , message , createdAt , attachments} = content ;
-  console.log(content);
-  
   
   const date = moment(createdAt).fromNow() ;
   return (
@@ -20,7 +18,7 @@ function MessageComponent({content , user}) {
       
     }}>
     {sender !== user._id && 
-    <Typography color='rgba(0,0,200,0.5)' fontWeight={600} variant='caption' >{sender}</Typography>
+    <Typography color='rgba(0,0,200,0.5)' fontWeight={600} variant='caption' >{"Pinku"}</Typography>
     }
 
     {sender && <Typography>{message}</Typography>}
@@ -41,4 +39,4 @@ function MessageComponent({content , user}) {
   )
 }
 
-export default memo(MessageComponent)
+export default memo(MessageComponent) 

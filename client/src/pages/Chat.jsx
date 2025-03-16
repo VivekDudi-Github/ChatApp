@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import AppLayout from '../components/layout/AppLayout'
 import { IconButton, Skeleton, Stack } from '@mui/material'
 import { AttachFile, Send as SendIcon} from '@mui/icons-material';
@@ -37,12 +37,14 @@ function Chat({room}) {
     setInput('')
   }
 
-
+  
   const NewMessageListner = useCallback((data) => {
     setMessages(prev => [...prev , data.message])
    } , [])
    
-  const EventHandler = { [NEW_MESSAGE] : NewMessageListner}
+  const EventHandler = useMemo(() => ({
+    [NEW_MESSAGE]: NewMessageListner
+  }), [NewMessageListner]);
 
   UseSocket(socket, EventHandler)
 
