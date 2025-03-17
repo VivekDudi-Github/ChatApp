@@ -12,7 +12,7 @@ import { useSelector } from 'react-redux';
 function Profile() {
   const {user , loader} = useSelector(state => state.auth)
   
-  return loader ? 
+  return loader || !user ? 
     <Stack spacing={'2rem'} direction={'column'} alignItems={'center'}>
       <Avatar
       sx={{

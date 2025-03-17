@@ -56,7 +56,7 @@ function Login() {
     e.preventDefault() ;
     try {
         const {data} = await axios.post('/api/v1/user/login' , {email , password} , config)
-        console.log(data);
+        
         toast.success('Logged In successfully')
         dispatch(setUser(data.data))
     } catch (error) {

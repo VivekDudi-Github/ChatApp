@@ -6,7 +6,8 @@ import axios from 'axios'
 import { useDispatch, useSelector } from "react-redux"
 import { setUser } from "./redux/reducer/auth"
 import toast, {Toaster} from 'react-hot-toast'
-import { SocketProvider } from "./socket"
+import { SocketProvider } from "./components/socket/socket.jsx"
+import ProtectedRouteWrapper from '../src/shared/ProtectedRoute.jsx'
 
 const Home = lazy(() => import('./pages/Home') )
 const Login = lazy(() => import('./pages/Login'))
@@ -43,24 +44,26 @@ function App() {
   (
     <>
       <Suspense fallback= {<LayoutLoader/>} >
-        <SocketProvider>
-          <Routes>    
-            <Route path="/" element={user ? <Home/> : <Navigate to={'/login'} />} />
-            <Route path="/login" element={user ? <Navigate to={'/'} />  : <Login/>} />
-            <Route path="/chat/:RoomId" element={user ? <Chat/> : <Navigate to={'/login'} />}/>
-            <Route path="/groups" element={user ? <Group/> : <Navigate to={'/login'} />} />
-            
-            <Route path="*" element={<NotFound/>} />
+     
+          <Routes>
+            <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
 
-            <Route path="/admin" element={<AdminLogin/>} />
-            <Route path="admin/dashboard" element={<DashBoard />} />
-            <Route path='/admin/user-management' element={<UserManagement/>} />
-            <Route path='/admin/Group-management' element={<GroupManagement/>} />
-            <Route path='/admin/messages-management' element={<MessageManagement/>} />
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<DashBoard />} />
+            <Route path="/admin/user-management" element={<UserManagement />} />
+            <Route path="/admin/group-management" element={<GroupManagement />} />
+            <Route path="/admin/messages-management" element={<MessageManagement />} />
+
             
-          </Routes> 
-        </SocketProvider> 
-      </Suspense>
+            <Route element={<ProtectedRouteWrapper user={user} />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/chat/:RoomId" element={<Chat />} />
+              <Route path="/groups" element={<Group />} />
+            </Route>
+
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       <Toaster  position="bottom-center"/>
     </>
   )

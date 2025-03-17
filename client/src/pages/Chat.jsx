@@ -5,35 +5,39 @@ import { AttachFile, Send as SendIcon} from '@mui/icons-material';
 import { InputBox } from '../components/styles/StylesComponent';
 
 import MessageComponent from '../shared/MessageComponent';
-import {getSocket} from '../socket'
+import {getSocket} from '../components/socket/socket'
 import { NEW_MESSAGE } from '../components/event';
 import { useGetRoomDetailsQuery } from '../redux/api/api';
 import {UseSocket} from '../components/hook/hooks'
+import { useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
 
 
-const user = {
-  name : 'Abc' , 
-  user_id : '12345'
-}
 function Chat({room}) {
   const containerRef = useRef(null) ;
-
+  const {user} = useSelector(state => state.auth)
+  
   
   const [messages , setMessages] = useState([]) ;
   
   const [ input , setInput] = useState('') ;
   
   const socket = getSocket() ;
-  const roomDetails = useGetRoomDetailsQuery({room , skip : !room})
-
-
+  const populate= true ;
+  const roomDetails = useGetRoomDetailsQuery({room , populate  , skip : !room})
+  console.log(socket.id);
+  
+  
   const members = roomDetails?.data?.data?.members ;
+  console.log(members);
+  
   const SubmitHanlderMessage = (e) => {
     e.preventDefault() ;
 
     if(!input) return ;
-
-    socket.emit(NEW_MESSAGE ,{room : room , members : members , message : input })
+    let membersIdArray = members.map(m => m._id)
+    if(!input || !membersIdArray || !room)  return toast.error('Data is being fetched . Please try again')
+    socket.emit(NEW_MESSAGE ,{room : room , members : membersIdArray , message : input })
     setInput('')
   }
 
@@ -42,6 +46,7 @@ function Chat({room}) {
     setMessages(prev => [...prev , data.message])
    } , [])
    
+
   const EventHandler = useMemo(() => ({
     [NEW_MESSAGE]: NewMessageListner
   }), [NewMessageListner]);
@@ -68,8 +73,10 @@ function Chat({room}) {
 
         {
           messages.map((m ,index) => {
-
-            return <MessageComponent key={ index} content={m} user={user}/>
+            const member = members.find((member) => member._id === m.sender )
+            console.log(member);
+            
+            return <MessageComponent key={ m._id} content={m} SenderDetail = {member} user={user}/>
           })
         }
       

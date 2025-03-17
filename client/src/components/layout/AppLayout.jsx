@@ -9,7 +9,7 @@ import { useMyChatsQuery } from '../../redux/api/api'
 import { useDispatch, useSelector } from 'react-redux'
 import { setIsMobileMenu} from '../../redux/reducer/misc'
 import { useErrors } from '../hook/hooks'
-import { getSocket } from '../../socket'
+import { getSocket } from '../socket/socket'
 
 const AppLayout = () => (Component) => { 
   return (props) => {

@@ -52,8 +52,7 @@ const api = createApi({
     getRoomDetails : builder.query({
       query : ({room , populate =false}) => {
         let url = `/chat/${room}`
-        if(populate) url+"?populate=true"
-
+        if(populate) url = url+"?populate=true"
 
         return {
           url : url ,

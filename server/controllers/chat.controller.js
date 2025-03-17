@@ -27,7 +27,7 @@ const TryCatch = (func , name) => {
   }
 }
 
-export const newGroupController = async( req, res) => {
+const newGroupController = async( req, res) => {
 try {
     const {name , members , avatar} = req.body ;
   
@@ -62,7 +62,7 @@ try {
   }
 }
 
-export const getRooms = TryCatch( async( req , res) => {
+const getRooms = TryCatch( async( req , res) => {
 
     const fetchRooms = await Room.find({members : req.userId})
     .populate('members' , 'name avatar' )
@@ -85,7 +85,7 @@ export const getRooms = TryCatch( async( req , res) => {
 
 } , 'getRooms' )
 
-export const getMyGroups = async( req , res) => {
+const getMyGroups = async( req , res) => {
   try {
     const MyGroup = await Room.find({creator : req.userId})
     .populate('members' , 'name avatar' )
@@ -98,7 +98,7 @@ export const getMyGroups = async( req , res) => {
   }
 }
 
-export const addMembers = async (req , res) => {
+const addMembers = async (req , res) => {
   try {
     const {members  } = req.body ;
     const {id} = req.params ;
@@ -127,7 +127,7 @@ export const addMembers = async (req , res) => {
   }
 }
 
-export const removeMembers = async(req, res) => {
+const removeMembers = async(req, res) => {
   try {
     const {members} = req.body ;
     const {id} = req.params ;
@@ -176,7 +176,7 @@ export const removeMembers = async(req, res) => {
   }
 }
 
-export const renameGroup =  async(req ,res) => {
+const renameGroup =  async(req ,res) => {
   try {
     const {name} = req.body ;
     const {id} = req.params ;
@@ -203,7 +203,7 @@ export const renameGroup =  async(req ,res) => {
   }
 }
 
-export const deleteRoom =  async(req , res) => {
+const deleteRoom =  async(req , res) => {
   try {
     const {id} =  req.params ;
   
@@ -222,7 +222,7 @@ export const deleteRoom =  async(req , res) => {
   }
 }
 
-export const leaveGroup =  async(req , res) => {
+const leaveGroup =  async(req , res) => {
   try {
     const {id} = req.params ;
     
@@ -251,7 +251,7 @@ export const leaveGroup =  async(req , res) => {
   }
 }
 
-export const sendAttachments= async ( req , res) => {
+const sendAttachments= async ( req , res) => {
   try {
     const {id} = req.params ;
 
@@ -309,7 +309,7 @@ export const sendAttachments= async ( req , res) => {
   }
 }
 
-export const getMessages =  TryCatch(async( req, res) => {  
+const getMessages =  TryCatch(async( req, res) => {  
   const {id} = req.params ;
   const {page = 1} = req.query ;
 
@@ -341,7 +341,7 @@ export const getMessages =  TryCatch(async( req, res) => {
 
 } , 'getMessage')
 
-export const getRoomDetails = TryCatch( async(req, res) => {
+const getRoomDetails = TryCatch( async(req, res) => {
   
   if(req.query.populate === 'true'){
         
@@ -361,3 +361,18 @@ export const getRoomDetails = TryCatch( async(req, res) => {
   }
 
 } , 'getChatDetails')
+
+
+export {
+    getMessages ,
+    getRoomDetails , 
+    sendAttachments , 
+    leaveGroup , 
+    deleteRoom ,
+    renameGroup ,
+    removeMembers , 
+    addMembers ,
+    getMyGroups , 
+    newGroupController , 
+    getRooms , 
+  }

@@ -1,10 +1,10 @@
-import { Box, Typography } from '@mui/material'
+import { Avatar, Box, Typography } from '@mui/material'
 import moment from 'moment';
 import React, { memo } from 'react'
 import { fileFormat } from '../components/hook/features';
 import RenderAttachments from './RenderAttachments';
 
-function MessageComponent({content , user}) {
+function MessageComponent({content , user , SenderDetail}) {
   const {sender , message , createdAt , attachments} = content ;
   
   const date = moment(createdAt).fromNow() ;
@@ -17,8 +17,11 @@ function MessageComponent({content , user}) {
       width : 'fit-content'
       
     }}>
-    {sender !== user._id && 
-    <Typography color='rgba(0,0,200,0.5)' fontWeight={600} variant='caption' >{"Pinku"}</Typography>
+    {sender._id !== user._id && 
+    <div style={{ display : 'flex' , alignItems : 'end' , gap : '5px' }}>
+      <Avatar sx={{width : '30px' , height : '30px'}} src={SenderDetail.avatar} />
+      <Typography color='rgba(0,0,200,0.5)' fontSize={14} fontWeight={600} variant='caption' >{SenderDetail.name}</Typography>
+    </div>
     }
 
     {sender && <Typography>{message}</Typography>}

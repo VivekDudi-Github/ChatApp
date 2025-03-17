@@ -46,9 +46,11 @@ io.use((socket, next) => {
 });
 
 io.on('connection' ,(socket) => {
+   console.log('connection');
    
   userSocketIDs.set(socket.user._id.toString() , socket.id)
   
+  console.log(userSocketIDs);
   
   socket.on(NEW_MESSAGE , async({room , members , message}) => {
     
