@@ -3,9 +3,14 @@ import { useEffect , useState } from "react";
 
 const useErrors = (errors = []) => {
   useEffect(() => {
-    errors.forEach(({isError , error , fallback}) => {
+    errors.forEach(({isError , error , fallback ,toastText}) => {
+      
       if(isError){
-        if(fallback) fallback() ;
+        
+        if(fallback) {
+          toast.error(toastText)           
+          fallback() ; 
+        }
         else toast.error(error?.data?.message || 
           'Something went wrong'
         )

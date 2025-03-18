@@ -8,28 +8,28 @@ import MessageComponent from '../shared/MessageComponent';
 import {getSocket} from '../components/socket/socket'
 import { NEW_MESSAGE } from '../components/event';
 import { useGetRoomDetailsQuery } from '../redux/api/api';
-import {UseSocket} from '../components/hook/hooks'
+import {useErrors, UseSocket} from '../components/hook/hooks'
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 
 function Chat({room}) {
   const containerRef = useRef(null) ;
+  const navigate = useNavigate() ;
   const {user} = useSelector(state => state.auth)
   
   
   const [messages , setMessages] = useState([]) ;
-  
+  const [errors , setErrors] = useState([{error : false , isError : false }]) 
   const [ input , setInput] = useState('') ;
   
   const socket = getSocket() ;
   const populate= true ;
   const roomDetails = useGetRoomDetailsQuery({room , populate  , skip : !room})
-  console.log(socket.id);
   
   
   const members = roomDetails?.data?.data?.members ;
-  console.log(members);
   
   const SubmitHanlderMessage = (e) => {
     e.preventDefault() ;
@@ -41,7 +41,7 @@ function Chat({room}) {
     setInput('')
   }
 
-  
+
   const NewMessageListner = useCallback((data) => {
     setMessages(prev => [...prev , data.message])
    } , [])
@@ -52,6 +52,18 @@ function Chat({room}) {
   }), [NewMessageListner]);
 
   UseSocket(socket, EventHandler)
+
+  useEffect(() => {
+    if (roomDetails.isError){
+      setErrors ( [{
+        isError: roomDetails?.isError,
+        error: roomDetails?.error,
+        fallback: () => navigate('/'),
+        toastText: "Can't find this room",
+      }])
+    } 
+  } , [roomDetails])
+  useErrors(errors)
 
 
   return roomDetails.isLoading ? 

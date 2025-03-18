@@ -59,7 +59,19 @@ const api = createApi({
           credentials : 'include' ,
         }} ,
       providesTags : ["Chats"] ,
-    }) , 
+    }) ,
+    
+    getMessages : builder.query({
+      query : ({room , populate =false}) => {
+        let url = `/chat/${room}`
+        if(populate) url = url+"?populate=true"
+
+        return {
+          url : url ,
+          credentials : 'include' ,
+        }} ,
+      providesTags : ["Chats"] ,
+    }) ,
 
   })
 })
