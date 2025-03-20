@@ -3,7 +3,7 @@ import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react' ;
 const api = createApi({
   reducerPath : 'api' ,
   baseQuery : fetchBaseQuery({baseUrl : '/api/v1'}) ,
-  tagTypes : ['Chats' , 'User'] ,
+  tagTypes : ['Chats' , 'User' , "Messages"] ,
 
   endpoints : (builder) => ({
     myChats : builder.query({
@@ -53,7 +53,6 @@ const api = createApi({
       query : ({room , populate =false}) => {
         let url = `/chat/${room}`
         if(populate) url = url+"?populate=true"
-
         return {
           url : url ,
           credentials : 'include' ,
@@ -62,15 +61,11 @@ const api = createApi({
     }) ,
     
     getMessages : builder.query({
-      query : ({room , populate =false}) => {
-        let url = `/chat/${room}`
-        if(populate) url = url+"?populate=true"
-
-        return {
-          url : url ,
+      query : ({roomId , pageNo}) => ({        
+          url : `/chat/message/${roomId}/?page=${pageNo}` ,
           credentials : 'include' ,
-        }} ,
-      providesTags : ["Chats"] ,
+        }) ,
+      providesTags : ["Messages"] ,
     }) ,
 
   })
@@ -84,4 +79,5 @@ export const {
   useAnswerFriendRequestMutation ,
   useGetNotificationQuery ,
   useGetRoomDetailsQuery ,
+  useGetMessagesQuery ,
 } = api

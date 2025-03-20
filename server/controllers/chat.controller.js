@@ -313,7 +313,7 @@ const getMessages =  TryCatch(async( req, res) => {
   const {id} = req.params ;
   const {page = 1} = req.query ;
 
-  const limit = 50 ;
+  const limit = 30 ;
   const skip = (page-1)*limit ;
   
 
@@ -335,7 +335,7 @@ const getMessages =  TryCatch(async( req, res) => {
   const total_pages = Math.ceil(totalMessage / limit) ;
 
   return ResSuccess(res, 200 , {
-    messages : messages ,
+    messages : messages.reverse() ,
     total_pages 
   })
 

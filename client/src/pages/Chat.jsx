@@ -7,7 +7,7 @@ import { InputBox } from '../components/styles/StylesComponent';
 import MessageComponent from '../shared/MessageComponent';
 import {getSocket} from '../components/socket/socket'
 import { NEW_MESSAGE } from '../components/event';
-import { useGetRoomDetailsQuery } from '../redux/api/api';
+import { useGetMessagesQuery, useGetRoomDetailsQuery } from '../redux/api/api';
 import {useErrors, UseSocket} from '../components/hook/hooks'
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
@@ -15,22 +15,29 @@ import { useNavigate } from 'react-router-dom';
 
 
 function Chat({room}) {
+
   const containerRef = useRef(null) ;
   const navigate = useNavigate() ;
   const {user} = useSelector(state => state.auth)
   
-  
+
+  const [pageNo , setPageNo] = useState(1) ;
   const [messages , setMessages] = useState([]) ;
   const [errors , setErrors] = useState([{error : false , isError : false }]) 
   const [ input , setInput] = useState('') ;
+  const [ oldMessagesChunks , setOldMessageChunks] = useState([]) ;
   
+
   const socket = getSocket() ;
   const populate= true ;
   const roomDetails = useGetRoomDetailsQuery({room , populate  , skip : !room})
+
+  const oldMessagesChunk = useGetMessagesQuery({roomId : room , pageNo : pageNo })
+  
   
   
   const members = roomDetails?.data?.data?.members ;
-  
+
   const SubmitHanlderMessage = (e) => {
     e.preventDefault() ;
 
@@ -39,17 +46,16 @@ function Chat({room}) {
     if(!input || !membersIdArray || !room)  return toast.error('Data is being fetched . Please try again')
     socket.emit(NEW_MESSAGE ,{room : room , members : membersIdArray , message : input })
     setInput('')
-  }
-
+  } 
 
   const NewMessageListner = useCallback((data) => {
     setMessages(prev => [...prev , data.message])
    } , [])
    
-
   const EventHandler = useMemo(() => ({
     [NEW_MESSAGE]: NewMessageListner
   }), [NewMessageListner]);
+
 
   UseSocket(socket, EventHandler)
 
@@ -62,8 +68,33 @@ function Chat({room}) {
         toastText: "Can't find this room",
       }])
     } 
-  } , [roomDetails])
+    if(oldMessagesChunk.isError){
+      setErrors( prev => [
+        ...prev ,
+        {
+          isError: roomDetails?.isError,
+          error: oldMessagesChunk?.error,
+          toastText: "Can't fetch the messages at moment",
+        }
+      ])
+    }
+    if(oldMessagesChunk.data){
+      let data = oldMessagesChunk?.data?.data?.messages
+      setOldMessageChunks(prev => [...prev , ...data ])
+    }
+  } , [roomDetails , oldMessagesChunk]) 
   useErrors(errors)
+  console.log(oldMessagesChunks);
+  
+  
+
+  const handleScroll = () => {
+    if(containerRef?.current?.scrollTop === 0){
+    
+      setPageNo(prev => prev + 1)
+    }
+  }
+
 
 
   return roomDetails.isLoading ? 
@@ -71,6 +102,7 @@ function Chat({room}) {
     ) : (
     <>
       <Stack
+      onScroll={handleScroll}
       boxSizing={"border-box"}
       padding={"1rem"}
       spacing={"1rem"}
@@ -82,13 +114,17 @@ function Chat({room}) {
       }}
       ref={containerRef}
       >
+        {oldMessagesChunks.map((m ,index) => {
+            const member = members.find((member) => member._id === m.sender._id )   
+            
+            return <MessageComponent key={index} data={m}  SenderDetail= {member} user={user}/>
+          })
+        }
 
         {
           messages.map((m ,index) => {
             const member = members.find((member) => member._id === m.sender )
-            console.log(member);
-            
-            return <MessageComponent key={ m._id} content={m} SenderDetail = {member} user={user}/>
+            return <MessageComponent key={ m._id} data={m} SenderDetail = {member} user={user}/>
           })
         }
       

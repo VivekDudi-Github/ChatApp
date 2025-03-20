@@ -60,7 +60,7 @@ io.on('connection' ,(socket) => {
       sender : socket.user._id ,
       room : room ,
       createdAt : new Date().toString() ,
-      message 
+      content : message 
     }
     console.log(message);
     

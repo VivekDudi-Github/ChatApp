@@ -4,27 +4,33 @@ import React, { memo } from 'react'
 import { fileFormat } from '../components/hook/features';
 import RenderAttachments from './RenderAttachments';
 
-function MessageComponent({content , user , SenderDetail}) {
-  const {sender , message , createdAt , attachments} = content ;
-  
+function MessageComponent({data , user , SenderDetail}) {
+  const {sender , content , createdAt , attachments} = data ;
+  const SameSender = SenderDetail._id === user._id ;
+
   const date = moment(createdAt).fromNow() ;
   return (
     <div style={{
-      alignSelf : sender === user._id ? "flex-end" : "flex-start" ,
-      color : 'black' , 
+      alignSelf : SameSender ? "flex-end" : "flex-start" ,
+      color : 'white' , 
+      background : 'rgba(0,0,0,9)' ,
       borderRadius : '5px' , 
       padding : '0.5rem' , 
-      width : 'fit-content'
+      maxWidth : '70%' ,
+      width : 'content-fit', 
       
     }}>
-    {sender._id !== user._id && 
-    <div style={{ display : 'flex' , alignItems : 'end' , gap : '5px' }}>
+    {<div style={{ display : 'flex' , width: "100%" , alignItems : 'end' , justifyContent : `${SameSender ? 'end' : 'start'}` , gap : '5px' }}>
       <Avatar sx={{width : '30px' , height : '30px'}} src={SenderDetail.avatar} />
-      <Typography color='rgba(0,0,200,0.5)' fontSize={14} fontWeight={600} variant='caption' >{SenderDetail.name}</Typography>
+      <Typography color='rgba(150,20,200,0.)' fontSize={14} fontWeight={600} variant='caption' >{SenderDetail.name}</Typography>
     </div>
     }
 
-    {sender && <Typography>{message}</Typography>}
+    {sender && 
+    <div style={{display : 'flex'  , marginTop : '5px' , alignItems : 'end' , justifyContent : `${SameSender ? 'start' : 'start'}`  }}>
+      <Typography >{content}</Typography>
+    </div>
+    }
 
     {attachments && attachments.map((a , index) => {
       const url =  a.url ;
@@ -37,8 +43,8 @@ function MessageComponent({content , user , SenderDetail}) {
       )
       })}
 
-     <Typography variant='caption' color='text.secondary'>{date}</Typography>
-    </div>
+      <Typography textAlign={SameSender ? 'end' : 'start'} display={'block'} width={'100%'} variant='caption' sx={{color : 'rgba(0255,0255,255,0.5)'}}>{date}</Typography>
+  </div>
   )
 }
 
