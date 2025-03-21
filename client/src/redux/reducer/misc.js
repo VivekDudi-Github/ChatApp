@@ -35,6 +35,9 @@ const miscSlice = createSlice({
     setIsSearchOpen : (state , action) => {
       state.isSearchOpen = action.payload ;
     } ,
+    setIsFileOpen : (state , action) => {
+      state.isFileMenu = action.payload ;
+    } ,
     setIsDeleteMenu : (state , action) => {
       state.isDeleteMenu = action.payload ;
     } ,
@@ -56,6 +59,7 @@ export const {
   setIsNewGroup ,
   setIsNotitficationMenu, 
   setIsSearchOpen,
+  setIsFileOpen ,
   setSelectedDeleteChat,
   setUploadingLoader ,
 } = miscSlice.actions

@@ -9,24 +9,30 @@ import {getSocket} from '../components/socket/socket'
 import { NEW_MESSAGE } from '../components/event';
 import { useGetMessagesQuery, useGetRoomDetailsQuery } from '../redux/api/api';
 import {useErrors, UseSocket} from '../components/hook/hooks'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import FileMenu from '../components/dialogs/FileMenu';
+import { setIsFileOpen } from '../redux/reducer/misc';
 
 
 function Chat({room}) {
 
   const containerRef = useRef(null) ;
   const navigate = useNavigate() ;
+  const dispatch = useDispatch() ;
   const {user} = useSelector(state => state.auth)
   
 
   const [pageNo , setPageNo] = useState(1) ;
+  const [oldScrollHeight , setOldScrollHeight] = useState(null)
+  
   const [messages , setMessages] = useState([]) ;
   const [errors , setErrors] = useState([{error : false , isError : false }]) 
   const [ input , setInput] = useState('') ;
+  const [ FileMenuAnchor , setFileMenuAnchor] = useState(null) ;
   const [ oldMessagesChunks , setOldMessageChunks] = useState([]) ;
-  
+   
 
   const socket = getSocket() ;
   const populate= true ;
@@ -38,6 +44,7 @@ function Chat({room}) {
   
   const members = roomDetails?.data?.data?.members ;
 
+  
   const SubmitHanlderMessage = (e) => {
     e.preventDefault() ;
 
@@ -46,19 +53,22 @@ function Chat({room}) {
     if(!input || !membersIdArray || !room)  return toast.error('Data is being fetched . Please try again')
     socket.emit(NEW_MESSAGE ,{room : room , members : membersIdArray , message : input })
     setInput('')
-  } 
+  }   // handler for sending the messages
 
+  
   const NewMessageListner = useCallback((data) => {
     setMessages(prev => [...prev , data.message])
-   } , [])
-   
+   } , [])   // fuc to set messages into state used in small useSocket 
+
   const EventHandler = useMemo(() => ({
     [NEW_MESSAGE]: NewMessageListner
   }), [NewMessageListner]);
 
 
-  UseSocket(socket, EventHandler)
+  UseSocket(socket, EventHandler)     //a small hook for handling the messages recieved via socket.io
 
+
+  // checks for the errors and set chunks of messages if available
   useEffect(() => {
     if (roomDetails.isError){
       setErrors ( [{
@@ -69,30 +79,50 @@ function Chat({room}) {
       }])
     } 
     if(oldMessagesChunk.isError){
-      setErrors( prev => [
-        ...prev ,
+      setErrors( [
         {
-          isError: roomDetails?.isError,
-          error: oldMessagesChunk?.error,
+          isError: roomDetails.isError,
+          error: oldMessagesChunk.error,
           toastText: "Can't fetch the messages at moment",
         }
       ])
     }
-    if(oldMessagesChunk.data){
+
+    //check & set the data in state and prevents the scolling position from changing
+    if(!oldMessagesChunk.isFetching && !oldMessagesChunk.isError){
       let data = oldMessagesChunk?.data?.data?.messages
-      setOldMessageChunks(prev => [...prev , ...data ])
+      setOldMessageChunks(prev => [...prev , ...data ])  
+
+      setTimeout(() => {
+        const newSrollHeight = containerRef.current.scrollHeight ;
+       
+         containerRef.current.scrollTop = newSrollHeight - oldScrollHeight || 0 ;
+      } , 20)
     }
   } , [roomDetails , oldMessagesChunk]) 
   useErrors(errors)
-  console.log(oldMessagesChunks);
-  
   
 
+  //creates a small jump after recieving a message 
+  useEffect(() => {
+    if( containerRef?.current)
+      containerRef.current.scrollTop =containerRef.current.scrollTop + 100 
+    } , [messages])
+
+
+  //on scroll it stimulates rerender & increase page no  
   const handleScroll = () => {
-    if(containerRef?.current?.scrollTop === 0){
-    
-      setPageNo(prev => prev + 1)
+    if(containerRef?.current?.scrollTop === 0 ){
+      if(pageNo < oldMessagesChunk?.data?.data.total_pages ){
+          setOldScrollHeight(containerRef?.current?.scrollHeight)   
+          setPageNo(prev => prev + 1)
+        }
     }
+  }
+
+  const handleFileOpen = (e) => {
+    setFileMenuAnchor(e.currentTarget)
+    dispatch(setIsFileOpen(true))
   }
 
 
@@ -118,7 +148,7 @@ function Chat({room}) {
             const member = members.find((member) => member._id === m.sender._id )   
             
             return <MessageComponent key={index} data={m}  SenderDetail= {member} user={user}/>
-          })
+          }).reverse()
         }
 
         {
@@ -135,7 +165,9 @@ function Chat({room}) {
             position : 'absolute' , 
             left : '0.9rem' , 
             color : 'rgb(200,200,200,9)'
-          }}>
+          }}
+          onClick={(e) => handleFileOpen(e)}
+          >
             <AttachFile />
           </IconButton>
           
@@ -155,6 +187,7 @@ function Chat({room}) {
         </Stack>
 
       </form>
+      <FileMenu anchorEl={FileMenuAnchor}/>
     </>
   )
 }

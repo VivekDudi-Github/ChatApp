@@ -54,11 +54,9 @@ const UseAsyncMutation = (mutationHook) => {
 const UseSocket = (socket , handlers) => {
   
   useEffect(() => {
-    console.log('ran one');
     
     Object.entries(handlers).forEach(([event , handler] ) => {
       socket.on(event , handler)
-      console.log('ran again');
     })
 
     return () => {

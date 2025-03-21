@@ -38,7 +38,7 @@ const AppLayout = () => (Component) => {
 
         {isLoading ? <Skeleton/> : (
             <Drawer open={isMobileMenu} onClose={handleMobileClose} >
-              <ChatList w='70vw'  chats={data.data} RoomId={RoomId} handleDeleteChat={() => console.log('chat deleted')} />
+              <ChatList w='70vw'  chats={data?.data} RoomId={RoomId} handleDeleteChat={() => console.log('chat deleted')} />
             </Drawer>
           ) 
         }
