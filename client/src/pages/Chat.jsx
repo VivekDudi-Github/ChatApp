@@ -125,6 +125,7 @@ function Chat({room}) {
     dispatch(setIsFileOpen(true))
   }
 
+console.log(oldMessagesChunks);
 
 
   return roomDetails.isLoading ? 
@@ -187,7 +188,7 @@ function Chat({room}) {
         </Stack>
 
       </form>
-      <FileMenu anchorEl={FileMenuAnchor}/>
+      <FileMenu anchorEl={FileMenuAnchor} RoomId={room}/>
     </>
   )
 }

@@ -68,6 +68,19 @@ const api = createApi({
       providesTags : ["Messages"] ,
     }) ,
 
+    SendAttachments :  builder.mutation({
+      query : ({data , RoomId}) => {
+        console.log(data);
+        
+        return {
+        url : `/chat/message/${RoomId}` ,
+        method : "POST" ,
+        credentials : 'include'  , 
+        body : data 
+      }} ,
+      invalidatesTags : ["Messages"]
+    }) ,
+
   })
 })
 
@@ -80,4 +93,5 @@ export const {
   useGetNotificationQuery ,
   useGetRoomDetailsQuery ,
   useGetMessagesQuery ,
+  useSendAttachmentsMutation ,
 } = api

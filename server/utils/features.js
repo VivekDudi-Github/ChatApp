@@ -1,6 +1,7 @@
 import { v2 as cloudinary} from "cloudinary";
 import { userSocketIDs } from "../app.js";
 import fs  from "fs";
+import { ErrorHandler } from "./utils.js";
 
 export const emitEvent = (req , event , users , data) => {
   console.log('emitting event' ,event);
@@ -19,7 +20,8 @@ export const uploadFilesTOCloudinary = async(files =[]) => {
         f.path ,
         {
           folder : 'CharApp_upload' ,
-          use_filename : true 
+          use_filename : true ,
+          resource_type : "auto"
         } ,
         ( error , result)=> {
           if(error) return reject(error) ;
@@ -41,8 +43,9 @@ export const uploadFilesTOCloudinary = async(files =[]) => {
 
     return formattedResult
   } catch (error) {
+    if(files) files.forEach(f => fs.unlinkSync(f.path))
     console.log( '---error-- while uploading files to cloudinary' ,error );
-    throw new Error('Error uploading files in cloundinary')
+    throw new ErrorHandler('Error uploading files in cloundinary' , 500)
   }  
 }
 

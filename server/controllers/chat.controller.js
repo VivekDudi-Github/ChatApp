@@ -1,6 +1,6 @@
 import { Room} from "../models/room.model.js"
 import {ALERT, NEW_ATTACHMENT, NEW_MESSAGE_ALERT, REFRETCH_CHATS}  from '../constants/event.js'
-import {emitEvent} from "../utils/features.js"
+import {emitEvent, uploadFilesTOCloudinary} from "../utils/features.js"
 import { User } from "../models/user.model.js"
 import { Message } from "../models/message.model.js"
 
@@ -254,7 +254,7 @@ const leaveGroup =  async(req , res) => {
 const sendAttachments= async ( req , res) => {
   try {
     const {id} = req.params ;
-
+    
     const room =  await Room.findById(id) ;
     const user = await User.findById(req.userId) ;
 
@@ -265,26 +265,27 @@ const sendAttachments= async ( req , res) => {
       return ResError(res, 403 , 'person is not a memeber')
     }
 
-    // const files = req.files || [];
+    const files = req.files ;
+    console.log(files);
+    
 
-    // if(files.length < 1) {
-    //   return ResError(res, 400 ,'please provide attachments')
-    // }
+    if( !Array.isArray(files)  || files.length < 1 ) {
+      return ResError(res, 400 ,'please provide attachments')
+    }
 
-    //upload files 
-
-    const attachment = ['mean' ,'median' ,'mode'] ;
-
+    const formattedResult = await uploadFilesTOCloudinary(files)
+    console.log(formattedResult);
+    
     const messageForSocket = {
       content : '' , 
-      attachment : attachment ,
-      sender : { id : req.userId ,name : user.name} ,
+      attachment : formattedResult ,
+      sender : req.userId  ,
       room : id       
     }  ;
 
     const messageForDB = {
       content : '' , 
-      attachment :attachment,
+      attachment :formattedResult,
       sender : req.userId ,
       room : id 
     } ;
