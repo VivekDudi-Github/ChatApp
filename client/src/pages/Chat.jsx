@@ -66,7 +66,8 @@ function Chat({room}) {
 
 
   UseSocket(socket, EventHandler)     //a small hook for handling the messages recieved via socket.io
-
+  console.log(socket.id);
+  
 
   // checks for the errors and set chunks of messages if available
   useEffect(() => {
@@ -125,7 +126,6 @@ function Chat({room}) {
     dispatch(setIsFileOpen(true))
   }
 
-console.log(oldMessagesChunks);
 
 
   return roomDetails.isLoading ? 

@@ -6,7 +6,6 @@ import axios from 'axios'
 import { useDispatch, useSelector } from "react-redux"
 import { setUser } from "./redux/reducer/auth"
 import toast, {Toaster} from 'react-hot-toast'
-import { SocketProvider } from "./components/socket/socket.jsx"
 import ProtectedRouteWrapper from '../src/shared/ProtectedRoute.jsx'
 
 const Home = lazy(() => import('./pages/Home') )

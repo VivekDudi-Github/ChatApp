@@ -8,7 +8,7 @@ import { Provider } from "react-redux";
 import store from './redux/store.js'
 
 createRoot(document.getElementById('root')).render(
-  // <StrictMode>
+  <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
         <HelmetProvider>
@@ -19,6 +19,6 @@ createRoot(document.getElementById('root')).render(
         </HelmetProvider>
       </BrowserRouter>
     </Provider>
-  // {/* </StrictMode> */}
+  </StrictMode>
   
 )

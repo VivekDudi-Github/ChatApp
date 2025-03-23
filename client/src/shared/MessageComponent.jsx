@@ -34,7 +34,7 @@ function MessageComponent({data , user , SenderDetail}) {
 
     {attachment && attachment.map((a , index) => {
       const url =  a.url ;
-      const file = fileFormat(url)
+      const file = fileFormat(url) 
       
       return( 
       <Box key={index}>

@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios' ;
 import Toast from 'react-hot-toast'
 import { setIsMobileMenu, setIsNotitficationMenu, setIsSearchOpen } from '../../redux/reducer/misc'
+// import socket from '../socket/createSocket'
+import { getSocket } from '../socket/socket'
 
 const SearchDiallog = lazy(() => import('../specific/Search'))
 const NotificationDialog =  lazy(() => import('../specific/Notifications'))
@@ -15,9 +17,9 @@ const NewGroupDialog = lazy(() => import('../specific/NewGroup'))
 function Header() {
   const navigate = useNavigate() ;
   const dispatch = useDispatch() ;
+  const socket = getSocket() ;
 
   const {isMobileMenu , isSearchOpen , isNotificationMenu } = useSelector(state => state.misc) ;
-  const [IsNotificationDialog ,setIsNotificationDialog] = useState(false) ;
   const [IsNewGroupDialog , setIsNewGroupDialog] = useState(false) ;
 
   
@@ -32,10 +34,11 @@ function Header() {
       const data = await axios.get('/api/v1/user/logout' , {
         withCredentials : true 
       })
-      console.log(data.data)
+      socket.disconnect() ;
       dispatch(setUser(null))
       navigate('/login')
       Toast.success('Logged Out successfully')
+      window.location.reload() ;
     } catch (error) {
       console.log(error);
       
