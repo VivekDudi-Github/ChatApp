@@ -2,16 +2,22 @@ import { v2 as cloudinary} from "cloudinary";
 import { userSocketIDs } from "../app.js";
 import fs  from "fs";
 import { ErrorHandler } from "./utils.js";
+import { io } from "../app.js";
+
 
 export const emitEvent = (req , event , users , data) => {
   console.log('emitting event' ,event);
+  const StringifiedUsers = users.map((u) => u.toString())
   
+  const memebersSocket = getSockets(StringifiedUsers)
+  io.to(memebersSocket).emit(event ,data)
 }
 
 export const getSockets = (users = []) => {
+  
    return users.map(user => userSocketIDs.get(user))
 }
-
+ 
 
 export const uploadFilesTOCloudinary = async(files =[]) => {
   const promises = files.map((f) => {

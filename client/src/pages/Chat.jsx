@@ -57,6 +57,7 @@ function Chat({room}) {
 
   
   const NewMessageListner = useCallback((data) => {
+    
     setMessages(prev => [...prev , data.message])
    } , [])   // fuc to set messages into state used in small useSocket 
 
@@ -66,8 +67,6 @@ function Chat({room}) {
 
 
   UseSocket(socket, EventHandler)     //a small hook for handling the messages recieved via socket.io
-  console.log(socket.id);
-  
 
   // checks for the errors and set chunks of messages if available
   useEffect(() => {
@@ -107,13 +106,13 @@ function Chat({room}) {
   //creates a small jump after recieving a message 
   useEffect(() => {
     if( containerRef?.current)
-      containerRef.current.scrollTop =containerRef.current.scrollTop + 100 
+      containerRef.current.scrollTop = containerRef.current.scrollTop + 100 
     } , [messages])
 
 
   //on scroll it stimulates rerender & increase page no  
   const handleScroll = () => {
-    if(containerRef?.current?.scrollTop === 0 ){
+    if(containerRef?.current?.scrollTop  === 0 ){
       if(pageNo < oldMessagesChunk?.data?.data.total_pages ){
           setOldScrollHeight(containerRef?.current?.scrollHeight)   
           setPageNo(prev => prev + 1)
@@ -121,12 +120,13 @@ function Chat({room}) {
     }
   }
 
+
   const handleFileOpen = (e) => {
-    setFileMenuAnchor(e.currentTarget)
+    setFileMenuAnchor(e.currentTarget) 
     dispatch(setIsFileOpen(true))
   }
 
-
+  
 
   return roomDetails.isLoading ? 
   (<Skeleton/>
@@ -147,6 +147,7 @@ function Chat({room}) {
       >
         {oldMessagesChunks.map((m ,index) => {
             const member = members.find((member) => member._id === m.sender._id )   
+            
             
             return <MessageComponent key={index} data={m}  SenderDetail= {member} user={user}/>
           }).reverse()

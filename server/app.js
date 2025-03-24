@@ -74,7 +74,7 @@ io.on('connection' ,(socket) => {
     
     io.to(membersSocket).emit(NEW_MESSAGE , {
        message : messgaeForRealTime ,
-       room 
+       roomID : room 
     })
     io.to(membersSocket).emit(NEW_MESSAGE_ALERT ,{room})
 
@@ -104,4 +104,4 @@ server.listen(port ,() => {
   ConnectDB() ;
 }) 
 
-export {userSocketIDs}
+export {userSocketIDs , io}

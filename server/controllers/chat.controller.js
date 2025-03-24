@@ -1,5 +1,5 @@
 import { Room} from "../models/room.model.js"
-import {ALERT, NEW_ATTACHMENT, NEW_MESSAGE_ALERT, REFRETCH_CHATS}  from '../constants/event.js'
+import {ALERT, NEW_ATTACHMENT, NEW_MESSAGE, NEW_MESSAGE_ALERT, REFRETCH_CHATS}  from '../constants/event.js'
 import {emitEvent, uploadFilesTOCloudinary} from "../utils/features.js"
 import { User } from "../models/user.model.js"
 import { Message } from "../models/message.model.js"
@@ -266,7 +266,7 @@ const sendAttachments= async ( req , res) => {
     }
 
     const files = req.files ;
-    console.log(files);
+    // console.log(files);
     
 
     if( !Array.isArray(files)  || files.length < 1 ) {
@@ -274,14 +274,6 @@ const sendAttachments= async ( req , res) => {
     }
 
     const formattedResult = await uploadFilesTOCloudinary(files)
-    console.log(formattedResult);
-    
-    const messageForSocket = {
-      content : '' , 
-      attachment : formattedResult ,
-      sender : req.userId  ,
-      room : id       
-    }  ;
 
     const messageForDB = {
       content : '' , 
@@ -293,16 +285,16 @@ const sendAttachments= async ( req , res) => {
     const message = await Message.create(messageForDB);
 
 
-    emitEvent(req , NEW_ATTACHMENT , room.members , {
-      message : messageForSocket ,
-      roomId : id ,
+    emitEvent(req , NEW_MESSAGE , room.members , {
+      message : message ,
+      roomID : id ,
     })
 
     emitEvent(req, NEW_MESSAGE_ALERT , room.members , {
-      room_id : room._id ,
+      room_ID : room._id ,
     })
 
-    return ResSuccess(res, 200 , message)
+    return ResSuccess(res, 200 )
 
   } catch (error) {
     console.log('error while sending the attachements' , error);

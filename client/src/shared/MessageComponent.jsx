@@ -6,7 +6,7 @@ import RenderAttachment from './RenderAttachments';
 
 function MessageComponent({data , user , SenderDetail}) {
   const {sender , content , createdAt , attachment} = data ;
-  const SameSender = SenderDetail._id === user._id ;
+  const SameSender = SenderDetail ? SenderDetail._id === user._id : null ;
 
   const date = moment(createdAt).fromNow() ;
   return (
@@ -34,11 +34,12 @@ function MessageComponent({data , user , SenderDetail}) {
 
     {attachment && attachment.map((a , index) => {
       const url =  a.url ;
+      const otherUrl = a.url.replace('upload/dpr_auto/w_150')
       const file = fileFormat(url) 
       
       return( 
       <Box key={index}>
-        <a href={url} target='_blank' download style={{color : 'black'}}>{RenderAttachment(url , file)}</a>
+        <a href={url} target='_blank' download style={{color : 'black'}}>{RenderAttachment(otherUrl , file)}</a>
       </Box>
       )
       })}
