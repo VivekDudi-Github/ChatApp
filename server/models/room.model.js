@@ -15,7 +15,12 @@ const roomSchema = new Schema({
     required : true ,
   } , 
   avatar : {
-    type : String ,
+    url : {
+      type: String , 
+    } ,
+    public_id : {
+      type: String , 
+    }
   } ,
   members : [{
     type : mongoose.Schema.Types.ObjectId , 

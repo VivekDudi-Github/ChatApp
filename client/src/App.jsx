@@ -63,7 +63,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
-      <Toaster  position="bottom-center"/>
+      <Toaster  position="top-center"/>
     </>
   )
 }

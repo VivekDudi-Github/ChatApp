@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import Header from './Header'
 import Title from '../../shared/Title'
 import { Drawer, Grid, Skeleton } from '@mui/material'
@@ -8,8 +8,10 @@ import Profile from '../specific/Profile'
 import { useMyChatsQuery } from '../../redux/api/api'
 import { useDispatch, useSelector } from 'react-redux'
 import { setIsMobileMenu} from '../../redux/reducer/misc'
-import { useErrors } from '../hook/hooks'
+import { useErrors, UseSocket } from '../hook/hooks'
 import { getSocket } from '../socket/socket'
+import { NEW_REQUEST } from '../event'
+import { setNotificationCount } from '../../redux/reducer/header'
 
 const AppLayout = () => (Component) => { 
   return (props) => {
@@ -21,8 +23,7 @@ const AppLayout = () => (Component) => {
     const {isMobileMenu} = useSelector(state => state.misc) ;
 
     const handleMobileClose = () => dispatch(setIsMobileMenu(false))
-    const handleMobileOpen = () => dispatch(setIsMobileMenu(true))
-        
+    
     const socket =  getSocket() ;
     
 
@@ -30,7 +31,20 @@ const AppLayout = () => (Component) => {
 
     useErrors([{isError , error}])
     
+    const newNotificationAlertHandler  = useCallback((data) => {
+      console.log('started');
+      
+      dispatch(setNotificationCount(1))
+    } , [])
 
+
+    const eventHandlers = { 
+      [NEW_REQUEST] : newNotificationAlertHandler ,
+    }
+
+    UseSocket(socket , eventHandlers )
+
+      
     return (
       <>
         <Header />

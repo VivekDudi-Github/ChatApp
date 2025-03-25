@@ -208,7 +208,7 @@ const sendRequest = async(req, res) => {
       } 
     )
     if(!makeRequest){
-      return ResError(res, 500 , makeRequest  )
+      return ResError(res, 500 , 'An unexpected error occurred'  )
     }
 
     emitEvent(req , NEW_REQUEST , [id] )
@@ -246,7 +246,14 @@ const AnswersRequest = async(req, res) => {
           status : 'accepted'
         } , 
         {new : true}
-      )
+      ).populate('sender' , 'name')
+      await Room.create({
+        groupChat : false , 
+        name : newRequest.sender.name ,
+        creator : id ,
+        members : [id , req.userId] ,
+      })
+
       return ResSuccess(res ,200 ,newRequest)
     }
 

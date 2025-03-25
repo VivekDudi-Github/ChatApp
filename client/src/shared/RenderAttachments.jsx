@@ -12,7 +12,7 @@ function RenderAttachments(url , file) {
       
 
     case 'audio' : 
-      return <audio src={url} preload='none' controls />
+      return <audio src={url} preload='none' controls  />
 
     default:
       return <FileOpen />

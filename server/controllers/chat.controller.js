@@ -1,5 +1,5 @@
 import { Room} from "../models/room.model.js"
-import {ALERT, NEW_ATTACHMENT, NEW_MESSAGE, NEW_MESSAGE_ALERT, REFRETCH_CHATS}  from '../constants/event.js'
+import {ALERT, NEW_MESSAGE, NEW_MESSAGE_ALERT, REFRETCH_CHATS}  from '../constants/event.js'
 import {emitEvent, uploadFilesTOCloudinary} from "../utils/features.js"
 import { User } from "../models/user.model.js"
 import { Message } from "../models/message.model.js"
@@ -73,7 +73,9 @@ const getRooms = TryCatch( async( req , res) => {
     const transformRoomsData = fetchRooms.map(({ members , groupChat , avatar , _id , name }) => {
       return {
         name : groupChat ? name 
-        : members[0].name ,
+        : members.filter(m => {
+          return m._id.toString() !== req.userId._id.toString()
+        })[0].name ,
         groupChat ,
         _id ,
         avatar : groupChat ? avatar : members[0].avatar ,
@@ -293,7 +295,7 @@ const sendAttachments= async ( req , res) => {
     emitEvent(req, NEW_MESSAGE_ALERT , room.members , {
       room_ID : room._id ,
     })
-
+ 
     return ResSuccess(res, 200 )
 
   } catch (error) {

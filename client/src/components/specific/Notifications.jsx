@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setIsNotitficationMenu } from "../../redux/reducer/misc";
 import toast from 'react-hot-toast';
 
+
 const Notifications = () => {
   const dispatch =  useDispatch() ;
   const {isNotificationMenu} = useSelector(state => state.misc)
@@ -29,7 +30,7 @@ const Notifications = () => {
     } catch (error) {
       console.log(error);
       toast.error(error || 'Something went wrong')      
-    }
+    } 
   }
   
 

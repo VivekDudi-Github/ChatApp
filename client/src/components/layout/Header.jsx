@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useState  } from 'react'
 import {useNavigate} from 'react-router-dom'
-import {AppBar, Backdrop, Box, IconButton, Toolbar, Tooltip, Typography} from '@mui/material'
+import {AppBar, Backdrop, Badge, Box, IconButton, Toolbar, Tooltip, Typography} from '@mui/material'
 import {Add as AddIcon , Logout as LogoutIcon, Group as GroupIcon, Menu as MenuIcon, Search as SearchIcon, Notifications} from '@mui/icons-material'
 import { setUser } from '../../redux/reducer/auth'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,6 +9,8 @@ import Toast from 'react-hot-toast'
 import { setIsMobileMenu, setIsNotitficationMenu, setIsSearchOpen } from '../../redux/reducer/misc'
 // import socket from '../socket/createSocket'
 import { getSocket } from '../socket/socket'
+import { resetNotificationCount } from '../../redux/reducer/header'
+
 
 const SearchDiallog = lazy(() => import('../specific/Search'))
 const NotificationDialog =  lazy(() => import('../specific/Notifications'))
@@ -20,6 +22,8 @@ function Header() {
   const socket = getSocket() ;
 
   const {isMobileMenu , isSearchOpen , isNotificationMenu } = useSelector(state => state.misc) ;
+  const {notificationsCount } = useSelector(state => state.header) ;
+  
   const [IsNewGroupDialog , setIsNewGroupDialog] = useState(false) ;
 
   
@@ -28,7 +32,10 @@ function Header() {
   const openNewGroup = () => { setIsNewGroupDialog( prev => !prev)} ;
   const openSearchDialog = () => {dispatch(setIsSearchOpen(true))} ;
   const NavigateToGroup = () => { navigate('/groups')} ;
-  const OpenNotification = () => { dispatch(setIsNotitficationMenu(true))} ;
+  const OpenNotification = () => { 
+    dispatch(setIsNotitficationMenu(true)) ;
+    dispatch(resetNotificationCount())
+  } ;
   const LogoutHandler = async() => {
     try {
       const data = await axios.get('/api/v1/user/logout' , {
@@ -48,9 +55,10 @@ function Header() {
 
   return (
   <>
-    <Box sx={{flexGrow : '1' }} height={'4rem'}>
+    <Box sx={{flexGrow : '1' }} height={'4rem' }>
       
-      <AppBar position='static' sx={{bgcolor : '#ea7070'}} >
+      <AppBar position='static' style={{
+        background : 'linear-gradient( to bottom, rgb(200,50,150) , rgba(0,0,0))'}} >
         
         <Toolbar>
           <Typography variant='h6' sx={{display : { xs : 'none' , sm : 'block'}}} >
@@ -70,7 +78,7 @@ function Header() {
             <IconBtn title="New Group" onClick={openNewGroup} Icon={AddIcon} />
             <IconBtn title="Manage Group" onClick={NavigateToGroup} Icon={GroupIcon} />
             <IconBtn title="Logout" onClick={LogoutHandler} Icon={LogoutIcon} />
-            <IconBtn title="Notification" onClick={OpenNotification} Icon={Notifications} />
+            <IconBtn title="Notification" onClick={OpenNotification} Icon={Notifications} NotificationValue={notificationsCount} />
           </Box> 
 
         </Toolbar>
@@ -96,10 +104,16 @@ function Header() {
   )
 }
 
-const IconBtn = ({ title, onClick, Icon }) => (
+const IconBtn = ({ title, onClick, Icon , NotificationValue }) => (
   <Tooltip title={title}>
-    <IconButton color="inherit" size="large" onClick={onClick}>
-      <Icon />
+    <IconButton sx={{ }}  
+      size="large" onClick={onClick}
+    >
+      {/* <Badge badgeContent={NotificationValue} color="error" > */}
+        <Icon style={{
+           color : NotificationValue ? "rgba(250,100,250)" :  "white"
+        }} />
+      {/* </Badge> */}
     </IconButton>
   </Tooltip>
 );

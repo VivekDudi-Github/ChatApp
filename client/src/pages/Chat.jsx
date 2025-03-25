@@ -24,13 +24,13 @@ function Chat({room}) {
   const {user} = useSelector(state => state.auth)
   
 
-  const [pageNo , setPageNo] = useState(1) ;
   const [oldScrollHeight , setOldScrollHeight] = useState(null)
-  
-  const [messages , setMessages] = useState([]) ;
-  const [errors , setErrors] = useState([{error : false , isError : false }]) 
   const [ input , setInput] = useState('') ;
   const [ FileMenuAnchor , setFileMenuAnchor] = useState(null) ;
+  
+  const [pageNo , setPageNo] = useState(1) ;
+  const [messages , setMessages] = useState([]) ;
+  const [errors , setErrors] = useState([]) 
   const [ oldMessagesChunks , setOldMessageChunks] = useState([]) ;
    
 
@@ -55,9 +55,22 @@ function Chat({room}) {
     setInput('')
   }   // handler for sending the messages
 
-  
+  useEffect(() => {
+    return () => {
+      setMessages([]) ;
+      setInput('') ;
+      setOldMessageChunks([]) ;
+      setErrors([])
+      setPageNo(1)
+    }
+  } , [room])
+
+console.log(room);
+
   const NewMessageListner = useCallback((data) => {
+    console.log(data.roomID , room);
     
+    if(data.roomID !== room ) return ;
     setMessages(prev => [...prev , data.message])
    } , [])   // fuc to set messages into state used in small useSocket 
 

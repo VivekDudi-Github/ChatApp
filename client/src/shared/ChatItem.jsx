@@ -26,7 +26,7 @@ function ChatItem({
         padding : '1rem' ,
         transitionDuration : '500ms' ,
         color : sameSender ? 'white' : 'unset' , 
-        background : sameSender ? 'linear-gradient( to right , rgba(200,50,150,9) , rgba(0,0,0,0.4))' : 'unset' ,
+        background : sameSender ? 'linear-gradient( to right , rgba(200,0,170) , rgba(0,0,0))' : 'unset' ,
         position : 'relative' , 
         justifyContent : 'space-around'
       }}>
