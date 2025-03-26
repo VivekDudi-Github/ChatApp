@@ -9,8 +9,7 @@ import Toast from 'react-hot-toast'
 import { setIsMobileMenu, setIsNotitficationMenu, setIsSearchOpen } from '../../redux/reducer/misc'
 // import socket from '../socket/createSocket'
 import { getSocket } from '../socket/socket'
-import { resetNotificationCount } from '../../redux/reducer/header'
-
+import { resetNotificationCount } from '../../redux/reducer/AlertsCount'
 
 const SearchDiallog = lazy(() => import('../specific/Search'))
 const NotificationDialog =  lazy(() => import('../specific/Notifications'))
@@ -22,7 +21,7 @@ function Header() {
   const socket = getSocket() ;
 
   const {isMobileMenu , isSearchOpen , isNotificationMenu } = useSelector(state => state.misc) ;
-  const {notificationsCount } = useSelector(state => state.header) ;
+  const {notificationsCount } = useSelector(state => state.counts) ;
   
   const [IsNewGroupDialog , setIsNewGroupDialog] = useState(false) ;
 

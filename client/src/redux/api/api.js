@@ -65,7 +65,7 @@ const api = createApi({
           url : `/chat/message/${roomId}/?page=${pageNo}` ,
           credentials : 'include' ,
         }) ,
-      providesTags : ["Messages"] ,
+        keepUnusedDataFor : 0 
     }) ,
 
     SendAttachments :  builder.mutation({

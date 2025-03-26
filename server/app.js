@@ -76,7 +76,9 @@ io.on('connection' ,(socket) => {
        message : messgaeForRealTime ,
        roomID : room 
     })
-    io.to(membersSocket).emit(NEW_MESSAGE_ALERT ,{room})
+    const otherMember = membersSocket.filter(m => m !== socket.id);
+    
+    io.to(otherMember).emit(NEW_MESSAGE_ALERT ,{roomID : room})
 
     try {
       await Message.create(messageForDb)

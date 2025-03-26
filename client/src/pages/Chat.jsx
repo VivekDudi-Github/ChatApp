@@ -29,6 +29,8 @@ function Chat({room}) {
   const [ FileMenuAnchor , setFileMenuAnchor] = useState(null) ;
   
   const [pageNo , setPageNo] = useState(1) ;
+  const [TotalPageNo , setTotalPageNo] = useState(1) ;
+
   const [messages , setMessages] = useState([]) ;
   const [errors , setErrors] = useState([]) 
   const [ oldMessagesChunks , setOldMessageChunks] = useState([]) ;
@@ -38,22 +40,11 @@ function Chat({room}) {
   const populate= true ;
   const roomDetails = useGetRoomDetailsQuery({room , populate  , skip : !room})
 
-  const oldMessagesChunk = useGetMessagesQuery({roomId : room , pageNo : pageNo })
+  let oldMessagesChunk = useGetMessagesQuery({roomId : room , pageNo : pageNo })    
   
   
   
   const members = roomDetails?.data?.data?.members ;
-
-  
-  const SubmitHanlderMessage = (e) => {
-    e.preventDefault() ;
-
-    if(!input) return ;
-    let membersIdArray = members.map(m => m._id)
-    if(!input || !membersIdArray || !room)  return toast.error('Data is being fetched . Please try again')
-    socket.emit(NEW_MESSAGE ,{room : room , members : membersIdArray , message : input })
-    setInput('')
-  }   // handler for sending the messages
 
   useEffect(() => {
     return () => {
@@ -62,27 +53,39 @@ function Chat({room}) {
       setOldMessageChunks([]) ;
       setErrors([])
       setPageNo(1)
+      setTotalPageNo(1)
     }
   } , [room])
 
-console.log(room);
 
-  const NewMessageListner = useCallback((data) => {
-    console.log(data.roomID , room);
+  const SubmitHanlderMessage = (e) => {                      // handler for sending the messages
+    e.preventDefault() ;
+
+    let membersIdArray = members.map(m => m._id)
+    
+    if(!input || !membersIdArray || !room)  return toast.error('Data is being fetched . Please try again')
+    
+    socket.emit(NEW_MESSAGE ,{room : room , members : membersIdArray , message : input })
+    setInput('')
+  }  
+
+  
+
+  const NewMessageListner = useCallback((data) => {        // fuc to set messages into state used in small useSocket 
     
     if(data.roomID !== room ) return ;
     setMessages(prev => [...prev , data.message])
-   } , [])   // fuc to set messages into state used in small useSocket 
+   } , [room])  
 
   const EventHandler = useMemo(() => ({
     [NEW_MESSAGE]: NewMessageListner
   }), [NewMessageListner]);
 
 
-  UseSocket(socket, EventHandler)     //a small hook for handling the messages recieved via socket.io
+  UseSocket(socket, EventHandler)                         //a small hook for handling the messages recieved via socket.io
 
-  // checks for the errors and set chunks of messages if available
-  useEffect(() => {
+ 
+  useEffect(() => {                                       // checks for the errors and set chunks of messages if available
     if (roomDetails.isError){
       setErrors ( [{
         isError: roomDetails?.isError,
@@ -91,7 +94,7 @@ console.log(room);
         toastText: "Can't find this room",
       }])
     } 
-    if(oldMessagesChunk.isError){
+    if(oldMessagesChunk?.isError){
       setErrors( [
         {
           isError: roomDetails.isError,
@@ -100,33 +103,38 @@ console.log(room);
         }
       ])
     }
-
+    
+    
     //check & set the data in state and prevents the scolling position from changing
-    if(!oldMessagesChunk.isFetching && !oldMessagesChunk.isError){
+    if(!oldMessagesChunk?.isFetching && !oldMessagesChunk?.isError){
+      
+      
       let data = oldMessagesChunk?.data?.data?.messages
+      setTotalPageNo(oldMessagesChunk?.data?.data?.total_pages)
       setOldMessageChunks(prev => [...prev , ...data ])  
-
+      
       setTimeout(() => {
         const newSrollHeight = containerRef.current.scrollHeight ;
-       
-         containerRef.current.scrollTop = newSrollHeight - oldScrollHeight || 0 ;
+        
+        containerRef.current.scrollTop = newSrollHeight - oldScrollHeight || 0 ;
       } , 20)
     }
   } , [roomDetails , oldMessagesChunk]) 
+
   useErrors(errors)
   
 
-  //creates a small jump after recieving a message 
-  useEffect(() => {
+  
+  useEffect(() => {                                         //creates a small jump after recieving a message 
     if( containerRef?.current)
-      containerRef.current.scrollTop = containerRef.current.scrollTop + 100 
+      containerRef.current.scrollTop = containerRef.current.scrollTop + 150 
     } , [messages])
 
 
-  //on scroll it stimulates rerender & increase page no  
-  const handleScroll = () => {
+ 
+  const handleScroll = () => {                             //on scroll it stimulates rerender & increase page no  
     if(containerRef?.current?.scrollTop  === 0 ){
-      if(pageNo < oldMessagesChunk?.data?.data.total_pages ){
+      if(pageNo < TotalPageNo ){
           setOldScrollHeight(containerRef?.current?.scrollHeight)   
           setPageNo(prev => prev + 1)
         }

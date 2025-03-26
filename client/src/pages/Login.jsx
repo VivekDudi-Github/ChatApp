@@ -12,7 +12,7 @@ function Login() {
     const dispatch = useDispatch() ;
 
 
-  const [IsLogin , setIslogin] = useState(false) ;
+  const [IsLogin , setIslogin] = useState(true) ;
   const toggleLogin = () => {setIslogin(!IsLogin)} 
   
   const [password, setPassword] = useState('')
@@ -60,7 +60,6 @@ function Login() {
         toast.success('Logged In successfully')
         dispatch(setUser(data.data))
     } catch (error) {
-        console.log(error?.response?.data?.error);
         toast.error(error?.response?.data?.error || "Something went wrong")
     }
 }

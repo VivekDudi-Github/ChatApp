@@ -7,16 +7,19 @@ function ChatList({w = '100%' ,
   chats=[] , 
   RoomId  , 
   onlineUsers = [] , 
-  newMessagesAlert = [{_id : '3' , count : 5}] ,
   handleDeleteChat ,
 }) {
 
+  
+  const {newMessageAlert} = useSelector(state => state.counts) ;
+
 return (
+
   <Stack  width={w} direction={'column'} overflow={'auto'} height={'100%'}>
     {chats?.map((data , index)=> {
       const { avatar , _id , name , groupChat , members} =  data ;
     
-      const newMessages = newMessagesAlert.find(({_id}) => _id === _id) ;
+      const newMessages = newMessageAlert.find((alert) => alert.roomID == _id) ;
 
       const IsOnline = members?.some((member) => onlineUsers.includes(_id)) ;
 

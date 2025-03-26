@@ -1,6 +1,5 @@
 import {  createContext, useContext , useEffect , useState} from "react";
 import toast from "react-hot-toast";
-// import socketConnect from "./createSocket";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { LayoutLoader } from "../layout/Loaders";
@@ -8,7 +7,6 @@ import { LayoutLoader } from "../layout/Loaders";
 const SocketContext = createContext() ;
 
 const getSocket = () => useContext(SocketContext)
-// const socket = socketConnect() ;
 
 const SocketProvider = ({ children}) => {
   const {user} = useSelector(state => state.auth)

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import Header from './Header'
 import Title from '../../shared/Title'
 import { Drawer, Grid, Skeleton } from '@mui/material'
@@ -10,8 +10,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setIsMobileMenu} from '../../redux/reducer/misc'
 import { useErrors, UseSocket } from '../hook/hooks'
 import { getSocket } from '../socket/socket'
-import { NEW_REQUEST } from '../event'
-import { setNotificationCount } from '../../redux/reducer/header'
+import { NEW_MESSAGE_ALERT, NEW_REQUEST } from '../event'
+import { setNewMessageAlert, setNotificationCount } from '../../redux/reducer/AlertsCount'
 
 const AppLayout = () => (Component) => { 
   return (props) => {
@@ -21,6 +21,7 @@ const AppLayout = () => (Component) => {
     
     const {user } = useSelector(state => state.auth) ;
     const {isMobileMenu} = useSelector(state => state.misc) ;
+
 
     const handleMobileClose = () => dispatch(setIsMobileMenu(false))
     
@@ -32,14 +33,19 @@ const AppLayout = () => (Component) => {
     useErrors([{isError , error}])
     
     const newNotificationAlertHandler  = useCallback((data) => {
-      console.log('started');
-      
       dispatch(setNotificationCount(1))
     } , [])
 
+    const newMessageAlertHandler = useCallback((data) => {
+      const roomID = data.roomID ;
+      
+      if(roomID !== RoomId)
+      dispatch(setNewMessageAlert({roomID}))
+    } , [RoomId])
 
     const eventHandlers = { 
       [NEW_REQUEST] : newNotificationAlertHandler ,
+      [NEW_MESSAGE_ALERT] : newMessageAlertHandler ,
     }
 
     UseSocket(socket , eventHandlers )

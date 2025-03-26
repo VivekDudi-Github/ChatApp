@@ -293,7 +293,7 @@ const sendAttachments= async ( req , res) => {
     })
 
     emitEvent(req, NEW_MESSAGE_ALERT , room.members , {
-      room_ID : room._id ,
+      roomID : room._id ,
     })
  
     return ResSuccess(res, 200 )
@@ -307,7 +307,7 @@ const sendAttachments= async ( req , res) => {
 const getMessages =  TryCatch(async( req, res) => {  
   const {id} = req.params ;
   const {page = 1} = req.query ;
-
+  
   const limit = 20 ;
   const skip = (page-1)*limit ;
   
@@ -328,6 +328,7 @@ const getMessages =  TryCatch(async( req, res) => {
   }
   const totalMessage = await Message.countDocuments({room : id})
   const total_pages = Math.ceil(totalMessage / limit) ;
+  
 
   return ResSuccess(res, 200 , {
     messages : messages ,
