@@ -9,7 +9,7 @@ import {v2 as cloudinary} from "cloudinary"
 
 import userRouter from './routes/user.route.js'
 import chatRouter from './routes/chat.route.js'
-import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from './constants/event.js';
+import { NEW_MESSAGE, NEW_MESSAGE_ALERT, START_TYPING } from './constants/event.js';
 
 import { getSockets } from './utils/features.js';
 import { Message } from './models/message.model.js';
@@ -53,8 +53,7 @@ io.on('connection' ,(socket) => {
   console.log(userSocketIDs);
   
   socket.on(NEW_MESSAGE , async({room , members , message}) => {
-    
-    
+
     const messgaeForRealTime = {
       _id :  uuid() ,
       sender : socket.user._id ,
@@ -85,7 +84,14 @@ io.on('connection' ,(socket) => {
     } catch (error) {
       console.log("error while saving message for db" , error);
     }
+  } 
+)
+
+  socket.on(START_TYPING , ({members , room}) => {
+    console.log('typing'  , room);
+
   })
+
 
   socket.on("disconnect" , () => {
     console.log("user dissconnected");  

@@ -14,6 +14,7 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import FileMenu from '../components/dialogs/FileMenu';
 import { setIsFileOpen } from '../redux/reducer/misc';
+import { START_TYPING } from '../components/Constants/events';
 
 
 function Chat({room}) {
@@ -42,7 +43,7 @@ function Chat({room}) {
 
   let oldMessagesChunk = useGetMessagesQuery({roomId : room , pageNo : pageNo })    
   
-  
+
   
   const members = roomDetails?.data?.data?.members ;
 
@@ -67,6 +68,7 @@ function Chat({room}) {
     
     socket.emit(NEW_MESSAGE ,{room : room , members : membersIdArray , message : input })
     setInput('')
+  
   }  
 
   
@@ -147,6 +149,10 @@ function Chat({room}) {
     dispatch(setIsFileOpen(true))
   }
 
+  const inputChangeHandler = (e) => {
+    setInput(e.target.value) ;
+    socket.emit(START_TYPING , { members , room})
+  }
   
 
   return roomDetails.isLoading ? 
@@ -194,7 +200,7 @@ function Chat({room}) {
             <AttachFile />
           </IconButton>
           
-          <InputBox placeholder='Type message here...' value={input} onChange={e => setInput(e.target.value)} />
+          <InputBox placeholder='Type message here...' value={input} onChange={inputChangeHandler} />
 
           <IconButton type='submit' sx={{
             backgroundColor : '#000' , 
