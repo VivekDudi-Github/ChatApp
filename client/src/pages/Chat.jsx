@@ -14,12 +14,15 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import FileMenu from '../components/dialogs/FileMenu';
 import { setIsFileOpen } from '../redux/reducer/misc';
-import { START_TYPING } from '../components/Constants/events';
+import { START_TYPING, STOP_TYPING } from '../components/Constants/events';
+import TypingLoader from '../shared/TypingLoader';
 
 
 function Chat({room}) {
 
   const containerRef = useRef(null) ;
+  const typingTimeOut = useRef(null) ;
+
   const navigate = useNavigate() ;
   const dispatch = useDispatch() ;
   const {user} = useSelector(state => state.auth)
@@ -29,6 +32,11 @@ function Chat({room}) {
   const [ input , setInput] = useState('') ;
   const [ FileMenuAnchor , setFileMenuAnchor] = useState(null) ;
   
+  const [IAmTyping , setIAmTyping] = useState(false) ;
+  const [userTyping , setuserTyping] = useState(false) ;
+
+
+
   const [pageNo , setPageNo] = useState(1) ;
   const [TotalPageNo , setTotalPageNo] = useState(1) ;
 
@@ -59,7 +67,7 @@ function Chat({room}) {
   } , [room])
 
 
-  const SubmitHanlderMessage = (e) => {                      // handler for sending the messages
+  const SubmitHanlderMessage = (e) => {                     // handler for sending the messages
     e.preventDefault() ;
 
     let membersIdArray = members.map(m => m._id)
@@ -69,9 +77,19 @@ function Chat({room}) {
     socket.emit(NEW_MESSAGE ,{room : room , members : membersIdArray , message : input })
     setInput('')
   
-  }  
+  }
 
-  
+  const NewStartTypingListner = useCallback((data) => {     // fuc to set typing message
+    if(data.roomID != room) return ;
+    setuserTyping(true)
+    
+   } , [room])
+
+   const StopTypingListner = useCallback((data) => {       // fuc to stop typing message
+    if(data.roomID != room) return ;
+    setuserTyping(false)
+    
+   } , [room])
 
   const NewMessageListner = useCallback((data) => {        // fuc to set messages into state used in small useSocket 
     
@@ -80,8 +98,12 @@ function Chat({room}) {
    } , [room])  
 
   const EventHandler = useMemo(() => ({
-    [NEW_MESSAGE]: NewMessageListner
-  }), [NewMessageListner]);
+    [NEW_MESSAGE]: NewMessageListner ,
+    [START_TYPING]: NewStartTypingListner ,
+    [STOP_TYPING]: StopTypingListner ,
+  
+  }   
+  ), [NewMessageListner]);
 
 
   UseSocket(socket, EventHandler)                         //a small hook for handling the messages recieved via socket.io
@@ -118,7 +140,10 @@ function Chat({room}) {
       setTimeout(() => {
         const newSrollHeight = containerRef.current.scrollHeight ;
         
-        containerRef.current.scrollTop = newSrollHeight - oldScrollHeight || 0 ;
+        containerRef.current.scrollTo({
+          top : newSrollHeight - oldScrollHeight || 0 ,
+          behavior : 'smooth'
+        })
       } , 20)
     }
   } , [roomDetails , oldMessagesChunk]) 
@@ -129,9 +154,11 @@ function Chat({room}) {
   
   useEffect(() => {                                         //creates a small jump after recieving a message 
     if( containerRef?.current)
-      containerRef.current.scrollTop = containerRef.current.scrollTop + 150 
+      containerRef.current.scrollTo({
+        top : containerRef.current.scrollTop + 150 ,
+        behavior : 'smooth'
+      })  
     } , [messages])
-
 
  
   const handleScroll = () => {                             //on scroll it stimulates rerender & increase page no  
@@ -151,43 +178,57 @@ function Chat({room}) {
 
   const inputChangeHandler = (e) => {
     setInput(e.target.value) ;
-    socket.emit(START_TYPING , { members , room})
+    const membersId = members.map((m) => m._id )  
+    if(!IAmTyping){
+      socket.emit(START_TYPING , { members : membersId , room}) ;
+      setIAmTyping(true) 
+    }
+    if(typingTimeOut.current) clearTimeout(typingTimeOut.current)
+
+    typingTimeOut.current = setTimeout(() => {
+      socket.emit(STOP_TYPING  ,{ members : membersId , room})
+      setIAmTyping(false)
+    } , [3000])
   }
+
   
 
   return roomDetails.isLoading ? 
   (<Skeleton/>
     ) : (
     <>
-      <Stack
-      onScroll={handleScroll}
-      boxSizing={"border-box"}
-      padding={"1rem"}
-      spacing={"1rem"}
-      height={"90%"}
-      sx={{
-        background : 'linear-gradient(to top , rgba( 0,0,0 , 0.2) , #fff )' ,
-        overflowX: "hidden",
-        overflowY: "auto",
-      }}
-      ref={containerRef}
-      >
-        {oldMessagesChunks.map((m ,index) => {
-            const member = members.find((member) => member._id === m.sender._id )   
-            
-            
-            return <MessageComponent key={index} data={m}  SenderDetail= {member} user={user}/>
-          }).reverse()
-        }
+        <Stack
+        onScroll={handleScroll}
+        boxSizing={"border-box"}
+        padding={"1rem"}
+        spacing={"1rem"}
+        height={"90%"}
+        sx={{
+          background : 'linear-gradient(to top , rgba( 0,0,0 , 0.2) , #fff )' ,
+          overflowX: "hidden",
+          overflowY: "auto",
+        }}
+        ref={containerRef}
+        >
+          {oldMessagesChunks.map((m ,index) => {
+              const member = members.find((member) => member._id === m.sender._id )   
+              
+              
+              return <MessageComponent key={index} data={m}  SenderDetail= {member} user={user}/>
+            }).reverse()
+          }
 
-        {
-          messages.map((m ,index) => {
-            const member = members.find((member) => member._id === m.sender )
-            return <MessageComponent key={ m._id} data={m} SenderDetail = {member} user={user}/>
-          })
-        }
-      
-      </Stack>
+          {
+            messages.map((m ,index) => {
+              const member = members.find((member) => member._id === m.sender )
+              return <MessageComponent key={ m._id} data={m} SenderDetail = {member} user={user}/>
+            })
+          }
+
+          {userTyping && <TypingLoader />}
+        
+        </Stack>
+        
       <form onSubmit={(e) => SubmitHanlderMessage(e)} style={{height : '10%'}}>
         <Stack bgcolor={'rgba(0,0,0,0.2)'} direction={'row'} height={'100%'} p={'0.5rem'} alignItems={'center'} position={'relative'}>
           <IconButton sx={{

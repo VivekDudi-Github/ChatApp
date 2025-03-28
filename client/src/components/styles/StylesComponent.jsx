@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { styled , Skeleton , keyframes ,Stack } from "@mui/material";
 import { Link as LinkComponent } from "react-router-dom";
 
 export const VisuallyHiddenInput = styled('input')({
@@ -59,3 +59,18 @@ fontSize : '1rem' ,
 backgroundcolor : 'rgba(0,0,0,0.8)'
 } 
 })
+
+const bounceAnimation = keyframes`
+ 0% { transform: scale(1) translatey(10px); background-color: rgba(0,0,0,0.6);  }
+  50% { transform: scale(1.2) translatey(10px); background-color: rgba(250,50,250,0.9); } 
+  100% { transform: scale(1) translatey(10px); background-color: rgba(0,0,0,0.6); }
+`;
+
+
+export const BouncingSkeleton = styled('span')(() => ({
+  animation: `${bounceAnimation} 1s infinite`,
+  color: 'black' ,
+  height : '7px' ,
+  width : '7px' ,
+  borderRadius : '50%'
+}));

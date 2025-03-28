@@ -9,7 +9,7 @@ import {v2 as cloudinary} from "cloudinary"
 
 import userRouter from './routes/user.route.js'
 import chatRouter from './routes/chat.route.js'
-import { NEW_MESSAGE, NEW_MESSAGE_ALERT, START_TYPING } from './constants/event.js';
+import { NEW_MESSAGE, NEW_MESSAGE_ALERT, START_TYPING, STOP_TYPING } from './constants/event.js';
 
 import { getSockets } from './utils/features.js';
 import { Message } from './models/message.model.js';
@@ -49,7 +49,7 @@ io.on('connection' ,(socket) => {
    console.log('connection');
    
   userSocketIDs.set(socket.user._id.toString() , socket.id)
-  
+
   console.log(userSocketIDs);
   
   socket.on(NEW_MESSAGE , async({room , members , message}) => {
@@ -88,10 +88,17 @@ io.on('connection' ,(socket) => {
 )
 
   socket.on(START_TYPING , ({members , room}) => {
-    console.log('typing'  , room);
-
+    const membersSocketIds = getSockets(members).filter(s => s !== socket.id ) ; 
+    
+       
+    io.to(membersSocketIds).emit(START_TYPING , {roomID : room})
   })
 
+  socket.on(STOP_TYPING , ({members , room}) => {
+    const membersSocketIds = getSockets(members).filter(s => s !== socket.id )  ;
+    io.to(membersSocketIds).emit(STOP_TYPING , {roomID : room})
+
+  })
 
   socket.on("disconnect" , () => {
     console.log("user dissconnected");  
