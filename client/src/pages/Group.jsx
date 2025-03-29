@@ -7,6 +7,9 @@ import { StyledLink } from '../components/styles/StylesComponent';
 import AvatarCard from '../shared/AvatarCard'
 import { sampleGroup, sampleUser } from '../shared/data';
 import UserItem from '../shared/UserItem';
+import { useMyGroupQuery } from '../redux/api/api';
+import { useErrors } from '../components/hook/hooks';
+import { LayoutLoader } from '../components/layout/Loaders';
 const DeleteDialog = lazy(() => import('../shared/DeleteDialog'))
 const AddMemberDialog = lazy(() => import('../shared/AddMemberDialog'))
 
@@ -25,6 +28,17 @@ const [GroupName , setGroupName] = useState('') ;
 const [NewGroupName , setNewGroupName] = useState('') ;
 
 const[ConfirmDeleteDialog , setConfirmDeleteDialog] = useState(false)
+
+
+const myGroups = useMyGroupQuery() ;
+
+
+const errors = [{
+  isError : myGroups?.isError ,
+  error : myGroups?.error ,
+}]
+
+useErrors(errors)
 
 const handleMobile = () => {
   setisMobileOpen(prev => !prev)
@@ -49,9 +63,15 @@ const removeMemberHandler = (id) =>{
 
 
 useEffect(() => {
-  setGroupName('Group')
-  setNewGroupName('group Name')
+  if(CurrentGroup_id && !myGroups.isLoading ){
 
+  const group =  myGroups.data.data.filter(g => g._id == CurrentGroup_id)
+  console.log(group);
+  
+
+  setGroupName(group[0].name)
+  setNewGroupName(group[0].name)
+}
   return () => {
     setGroupName('')
     setNewGroupName('')
@@ -62,20 +82,18 @@ useEffect(() => {
 
 const iconBtns = 
   <>
-  <IconButton
-  onClick={handleMobile} 
-  sx={{
-    display : {
-      xs : 'block' ,
-      sm : 'none' ,
-      right : '1rem' ,
-      top : '1rem' ,
-      position : 'absolute' ,
-    }
-  }}>
+    <IconButton
+    onClick={handleMobile} 
+    sx={{
+      position : 'absolute' , 
+      top : '1rem' , 
+      right: '1rem' ,
+      color : 'rgb(200,200,200)' , 
+      bgcolor : 'black' , 
+    }}>
+      <MenuIcon />
+    </IconButton>
 
-    <MenuIcon />
-  </IconButton>
     <Tooltip title='black'>
       <IconButton
       sx={{
@@ -97,7 +115,9 @@ const iconBtns =
 
 
 
-  return (
+  return myGroups.isLoading? (
+    <LayoutLoader />
+  ) : (
     <Grid container height={'100vh'}>
       <Grid item 
       sx={{
@@ -110,7 +130,7 @@ const iconBtns =
       }}
       sm={4}
       >
-        <GroupList myGroup={sampleGroup} CurrentGroup_id={CurrentGroup_id} />
+        <GroupList myGroup={myGroups?.data?.data} CurrentGroup_id={CurrentGroup_id} />
       </Grid>
 
       {CurrentGroup_id ?
@@ -132,7 +152,7 @@ const iconBtns =
         <Stack direction={'row'} alignItems={'center'} justifyContent={'center'} padding={'3rem'} spacing={'1rem'}>
           {IsEdit ? 
           <>
-            <TextField value={NewGroupName} onChange={e => setNewGroupName(e.target.value)}/>
+            <TextField value={NewGroupName}  onChange={e => setNewGroupName(e.target.value)}/>
             <IconButton onClick={updateGroupName}><Done/></IconButton>
           </> 
           :
@@ -184,9 +204,7 @@ const iconBtns =
         </Suspense>
       }</>
     :
-    <Grid item position={'relative'}>
-      {iconBtns}
-    </Grid>
+      <></>
     }
 
       <Drawer 
@@ -195,12 +213,15 @@ const iconBtns =
           xs : 'block' , 
           sm : 'none' ,
         } , 
-      }} open={isMobileOpen} onClose={() => setisMobileOpen(false)}>
-      <GroupList w={'50vw'} myGroup={sampleGroup} CurrentGroup_id={CurrentGroup_id} />
+      }} open={CurrentGroup_id ? isMobileOpen : true} onClose={() => setisMobileOpen(false)}>
+      <GroupList w={'50vw'} myGroup={myGroups?.data?.data} CurrentGroup_id={CurrentGroup_id} />
       </Drawer>
     </Grid>
   )
 }
+
+export default Group
+
 
 const GroupList = ({w='100%' , myGroup = [] , CurrentGroup_id}) => {
   return <Stack bgcolor={'black'} color={'white'} overflow={'auto'} height={'100%'} width={w} >
@@ -211,6 +232,8 @@ const GroupList = ({w='100%' , myGroup = [] , CurrentGroup_id}) => {
     }
   </Stack>
 }
+
+
 
 const GeoupListItems =memo (({group , CurrentGroup_id}) => {
   const {name , avatar , _id} = group ;
@@ -234,5 +257,3 @@ const GeoupListItems =memo (({group , CurrentGroup_id}) => {
 })
 
 
-
-export default Group

@@ -81,6 +81,13 @@ const api = createApi({
       invalidatesTags : ["Messages"]
     }) ,
 
+    myGroup : builder.query({
+      query : () => ({
+        url : '/chat/my_group' ,
+        credentials : 'include'
+      })
+    }) ,
+
   })
 })
 
@@ -94,4 +101,5 @@ export const {
   useGetRoomDetailsQuery ,
   useGetMessagesQuery ,
   useSendAttachmentsMutation ,
+  useMyGroupQuery
 } = api

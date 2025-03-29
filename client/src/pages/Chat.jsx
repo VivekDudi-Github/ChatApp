@@ -6,7 +6,7 @@ import { InputBox } from '../components/styles/StylesComponent';
 
 import MessageComponent from '../shared/MessageComponent';
 import {getSocket} from '../components/socket/socket'
-import { NEW_MESSAGE } from '../components/event';
+import { ALERT, NEW_MESSAGE } from '../components/event';
 import { useGetMessagesQuery, useGetRoomDetailsQuery } from '../redux/api/api';
 import {useErrors, UseSocket} from '../components/hook/hooks'
 import { useDispatch, useSelector } from 'react-redux';
