@@ -22,7 +22,7 @@ const useErrors = (errors = []) => {
 
 const UseAsyncMutation = (mutationHook) => {
   const [isLoading , setIsLoading] = useState(false) ;
-  const [data , setData] = useState(false) ;
+  const [data , setData] = useState(null) ;
 
   const [mutate] = mutationHook() ;
 
@@ -34,7 +34,9 @@ const UseAsyncMutation = (mutationHook) => {
     try {
       const res  = await mutate(...args)
     if(res.data){
-        toast.success(res?.data?.data , {id : toastId})
+      console.log(res?.data?.data);
+      
+        toast.success( 'Operation Successfull', {id : toastId})
         setData(res.data)
 
       }else {

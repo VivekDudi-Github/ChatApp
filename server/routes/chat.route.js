@@ -6,7 +6,7 @@ import { sendAttachmentsMulter } from "../middlewares/multer.js";
 
 const router =  express.Router() ;
 
-router.post('/new-group' ,checkUser , newGroupController)
+router.post('/new_group' ,checkUser , newGroupController)
 router.get('/rooms' , checkUser , getRooms)
 router.get('/my_group' ,checkUser , getMyGroups)
 router.put('/members/:id' , checkUser , addMembers)

@@ -29,16 +29,13 @@ const TryCatch = (func , name) => {
 
 const newGroupController = async( req, res) => {
 try {
-    const {name , members , avatar} = req.body ;
+    const {name , members } = req.body ;
   
     if(!name){
       return ResError(res ,400 ,'Provide a name first')
     }
     if( members.length < 2){
       return ResError(res , 400 , 'Members must be at least 2')
-    }
-    if(!avatar){
-      return ResError(res ,400 ,'Provide a avatar')
     }
 
   
@@ -49,7 +46,6 @@ try {
       name : name ,
       creator : req.userId ,
       members : GroupMembers ,
-      avatar
     })
     emitEvent(req , ALERT , GroupMembers ,`Welcome to ${name} group`)
     emitEvent(req , REFRETCH_CHATS , members)

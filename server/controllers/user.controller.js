@@ -270,8 +270,8 @@ const AnswersRequest = async(req, res) => {
 
 const GetMyFriends = async( req, res) => {
   try {
-    const {GroupId} = req.query ;
 
+    const {room} = req.query ;
     const AllFriendsRoom =  await Room.find({
       groupChat : false , 
       members : {$in : req.userId} 
@@ -283,8 +283,8 @@ const GetMyFriends = async( req, res) => {
 
     const friends =  AllFriendsRoom.flatMap((r) => r.members.filter(m => m._id.toString() !== req.userId._id.toString() ) )
 
-    if(GroupId){
-      const group = await Room.findById(GroupId) ;
+    if(room){
+      const group = await Room.findById(room) ;
 
       const availableFriends = friends.filter( f => !group.members.includes(f._id) )
         

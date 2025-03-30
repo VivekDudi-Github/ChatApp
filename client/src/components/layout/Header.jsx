@@ -6,7 +6,7 @@ import { setUser } from '../../redux/reducer/auth'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios' ;
 import Toast from 'react-hot-toast'
-import { setIsMobileMenu, setIsNotitficationMenu, setIsSearchOpen } from '../../redux/reducer/misc'
+import { setIsMobileMenu, setIsNewGroup, setIsNotitficationMenu, setIsSearchOpen } from '../../redux/reducer/misc'
 // import socket from '../socket/createSocket'
 import { getSocket } from '../socket/socket'
 import { resetNotificationCount } from '../../redux/reducer/AlertsCount'
@@ -20,15 +20,13 @@ function Header() {
   const dispatch = useDispatch() ;
   const socket = getSocket() ;
 
-  const {isMobileMenu , isSearchOpen , isNotificationMenu } = useSelector(state => state.misc) ;
+  const {isNewGroup , isSearchOpen , isNotificationMenu } = useSelector(state => state.misc) ;
   const {notificationsCount } = useSelector(state => state.counts) ;
   
-  const [IsNewGroupDialog , setIsNewGroupDialog] = useState(false) ;
-
   
 
   const handleMobile = () => {dispatch(setIsMobileMenu(true))} ;
-  const openNewGroup = () => { setIsNewGroupDialog( prev => !prev)} ;
+  const openNewGroup = () => { dispatch(setIsNewGroup(true))} ;
   const openSearchDialog = () => {dispatch(setIsSearchOpen(true))} ;
   const NavigateToGroup = () => { navigate('/groups')} ;
   const OpenNotification = () => { 
@@ -89,7 +87,7 @@ function Header() {
         <SearchDiallog />
       </Suspense>
     )}
-    {IsNewGroupDialog && (
+    {isNewGroup && (
       <Suspense fallback={<Backdrop  open/>}>
         <NewGroupDialog />
       </Suspense>

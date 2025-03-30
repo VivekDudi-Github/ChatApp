@@ -1,13 +1,28 @@
-import { Avatar, Button, Dialog, DialogTitle, ListItem, Stack, TextField, Typography } from '@mui/material';
+import { Avatar, Button, Dialog, DialogTitle, ListItem, Skeleton, Stack, TextField, Typography } from '@mui/material';
 import UserItem from '../../shared/UserItem';
-import { sampleUser } from '../../shared/data';
 import { useState } from 'react';
+import { useDispatch, useSelector } from "react-redux";
+import {useCreatenewGroupMutation, useGetMyFriendsQuery} from '../../redux/api/api'
+import {useErrors , UseAsyncMutation } from '../hook/hooks'
+import {setIsNewGroup} from '../../redux/reducer/misc'
+import toast from 'react-hot-toast';
+
 function NewGroup() {
-  const users = sampleUser
+  const dispatch = useDispatch() ;
+  const {isNewGroup} = useSelector(state => state.misc)
+
+  const {data  ,isError , error ,isLoading} = useGetMyFriendsQuery('') ;
+
+  useErrors([{isError , error}])
+
+  const [createNewGroup , newGroupIsLoading  ] = UseAsyncMutation(useCreatenewGroupMutation) ; 
   
-  const [groupName , setGroupName] = useState('')
-  const [openDialog , setopenDialog] = useState(true) ;
-  const [members, setMembers] = useState([])
+  
+  
+  
+  const [groupName , setGroupName] = useState('') ;
+  const [members, setMembers] = useState([]) ;
+
 
   let selectMemeberHandler = (id) => {
     setMembers((prev) => prev.includes(id) ? 
@@ -15,9 +30,21 @@ function NewGroup() {
     [...prev , id]
   )} ;
   
-  const submitHandler = () => {} ;
+
+  const submitHandler =async () => {
+    if(!groupName) {return toast.error('Please provide the name for group.')} 
+    if(members.length < 2) {return toast.error('Please select atleast two members to create a new group.')}
+    console.log("shuru");
+    
+    await createNewGroup('Creating new group' ,{name : groupName , members : members})
+    
+    closeHandler()
+  } ;
+  
+  const closeHandler = () => dispatch(setIsNewGroup(false))
+
   return (
-    <Dialog open={openDialog}>
+    <Dialog open={isNewGroup} onClose={closeHandler}>
       <Stack p={{ xs : '1rem' , sm : '2rem'}} sx={{width : '25rem' }} spacing={'2rem'} >
         <DialogTitle textAlign={'center'} variant='h5'>
           Create New Group
@@ -26,17 +53,20 @@ function NewGroup() {
         <TextField label='Group Name' placeholder='New Group' value={groupName} onChange={e => setGroupName(e.target.value)} />
 
         <Typography>Members</Typography>
+        {isLoading ?(
+          <Skeleton />
+        ) : (
           <Stack>
-            {users.map((u , i) => {
+            {data.data.map((u , i) => {
             return (
-              <UserItem user={u} key={i} UserAdded={members.includes(u.user_id)} handler={() =>selectMemeberHandler(u.user_id)} />
+              <UserItem user={u} key={i} UserAdded={members.includes(u._id)} handler={() =>selectMemeberHandler(u._id)} />
             )
           })}
           </Stack>
-
+        )}
           <Stack direction={'row'} justifyContent={'space-between'} margin={'0.25rem'}>
-            <Button onClick={() => setopenDialog(false)} variant='text' color='error'>Cancel</Button>
-            <Button variant='contained'>Create</Button>
+            <Button variant='text' onClick={closeHandler} disabled={newGroupIsLoading}  color='error'>Cancel</Button>
+            <Button variant='contained' onClick={submitHandler} disabled={newGroupIsLoading} >Create</Button>
           </Stack>
       </Stack>
     </Dialog>

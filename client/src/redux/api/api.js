@@ -70,8 +70,6 @@ const api = createApi({
 
     SendAttachments :  builder.mutation({
       query : ({data , RoomId}) => {
-        console.log(data);
-        
         return {
         url : `/chat/message/${RoomId}` ,
         method : "POST" ,
@@ -88,6 +86,27 @@ const api = createApi({
       })
     }) ,
 
+    getMyFriends :  builder.query({
+      query : ({room}) => {
+        let url = room ?  `/user/friends/?room=${room}` : '/user/friends'
+        return {
+          url : url ,
+          credentials : 'include' ,
+          method : 'GET' ,
+        }} ,
+      providesTags : ["Chats"] ,
+    }) ,
+
+    CreatenewGroup : builder.mutation({
+      query : ({name , members}) => ({
+        url : '/chat/new_group' ,
+        method : "POST" ,
+        credentials : 'include'  , 
+        body : {members , name} 
+      }) ,
+      invalidatesTags : ["Chat"]
+    }) ,
+
   })
 })
 
@@ -101,5 +120,7 @@ export const {
   useGetRoomDetailsQuery ,
   useGetMessagesQuery ,
   useSendAttachmentsMutation ,
-  useMyGroupQuery
+  useMyGroupQuery ,
+  useGetMyFriendsQuery ,
+  useCreatenewGroupMutation ,
 } = api
