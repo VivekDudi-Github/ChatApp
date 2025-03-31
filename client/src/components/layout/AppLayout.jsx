@@ -43,6 +43,13 @@ const AppLayout = () => (Component) => {
       dispatch(setNewMessageAlert({roomID}))
     } , [RoomId])
 
+    // const alertListener = useCallback((data) => {
+    //   const messageForAlert = {
+    //     content : data ,
+    //     sender : {_id : ''}
+    //   }
+    // } , [])
+    
     const eventHandlers = { 
       [NEW_REQUEST] : newNotificationAlertHandler ,
       [NEW_MESSAGE_ALERT] : newMessageAlertHandler ,

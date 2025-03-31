@@ -85,7 +85,7 @@ const getRooms = TryCatch( async( req , res) => {
 
 const getMyGroups = async( req , res) => {
   try {
-    const MyGroup = await Room.find({creator : req.userId})
+    const MyGroup = await Room.find({creator : req.userId , groupChat : true})
     .populate('members' , 'name avatar' )
 
     return ResSuccess(res , 200 , MyGroup)

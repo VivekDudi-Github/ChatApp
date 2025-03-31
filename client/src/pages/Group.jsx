@@ -7,7 +7,7 @@ import { StyledLink } from '../components/styles/StylesComponent';
 import AvatarCard from '../shared/AvatarCard'
 import { sampleGroup, sampleUser } from '../shared/data';
 import UserItem from '../shared/UserItem';
-import { useMyGroupQuery } from '../redux/api/api';
+import { useGetRoomDetailsQuery, useMyGroupQuery } from '../redux/api/api';
 import { useErrors } from '../components/hook/hooks';
 import { LayoutLoader } from '../components/layout/Loaders';
 const DeleteDialog = lazy(() => import('../shared/DeleteDialog'))
@@ -27,18 +27,39 @@ const [AddMember, setAddMember] = useState(false)
 const [GroupName , setGroupName] = useState('') ;
 const [NewGroupName , setNewGroupName] = useState('') ;
 
+
 const[ConfirmDeleteDialog , setConfirmDeleteDialog] = useState(false)
 
 
 const myGroups = useMyGroupQuery() ;
 
+const groupDetails = useGetRoomDetailsQuery({room : CurrentGroup_id , populate : true} , {skip : !CurrentGroup_id })
 
-const errors = [{
+console.log(groupDetails);
+
+
+const errors = [
+  {
   isError : myGroups?.isError ,
-  error : myGroups?.error ,
-}]
+  error : myGroups?.error?.data?.error ,
+  } ,
+  {
+    isError : groupDetails.isError ,
+    error : groupDetails?.error ,
+    fallback : groupDetails.isError ? ()=> navigate('/') : null ,
+    toastText : groupDetails.isError ? groupDetails?.error?.data?.error : null
+  }
+]
 
 useErrors(errors)
+
+useEffect(() => {
+  if(groupDetails.data){
+    setGroupName(groupDetails.data.data.name)
+    
+  }
+} , [groupDetails.data])
+
 
 const handleMobile = () => {
   setisMobileOpen(prev => !prev)
@@ -66,7 +87,6 @@ useEffect(() => {
   if(CurrentGroup_id && !myGroups.isLoading ){
 
   const group =  myGroups.data.data.filter(g => g._id == CurrentGroup_id)
-  console.log(group);
   
 
   setGroupName(group[0].name)
@@ -171,8 +191,9 @@ const iconBtns =
         {/* Members */}
         <Typography alignSelf={'flex-start'} margin={'1rem'} variant='body1'>Members</Typography>
         <Stack boxSizing={'border-box'} maxWidth={'45rem'} margin={'0 0 1rem'} width={'100%'} padding={{ sm : '1rem' ,xs :'0' ,md:'1rem 4rem'}}  height={'50vh'} overflow={'auto'}>
-          {sampleUser.map((u) => (
-            <UserItem user={u} key={u.user_id} UserAdded handler={removeMemberHandler}
+          {groupDetails?.data && 
+          groupDetails?.data?.data?.members.map((u) => (
+            <UserItem user={u} key={u._id} UserAdded handler={removeMemberHandler}
             styling={{
                 boxShadow : ' 0 0 0.5rem rgba(0,0,0,0.5)' ,
                 padding : '1rem' , 

@@ -11,9 +11,10 @@ const useErrors = (errors = []) => {
           toast.error(toastText)           
           fallback() ; 
         }
-        else toast.error(error?.data?.message || 
+        else {
+          toast.error(error?.data?.error || 
           'Something went wrong'
-        )
+        )}
       }
     })
   }, [errors])
