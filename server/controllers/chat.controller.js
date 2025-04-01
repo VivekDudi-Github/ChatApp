@@ -130,8 +130,11 @@ const removeMembers = async(req, res) => {
     const {members} = req.body ;
     const {id} = req.params ;
 
-    if(!members || !id ) {
-      return ResError(res ,400 , "members and id is required")
+    if(!members) {
+      return ResError(res ,400 , "members is required")
+    }
+    if(!id) {
+      return ResError(res ,400 , "id is required")
     }
     if(members.includes(req.userId._id.toString())){
       return ResError(res , 400 , 'You can not remove yourself')
@@ -159,10 +162,10 @@ const removeMembers = async(req, res) => {
       { new : true }
     )
     if(!newGroupData) {
-      return ResError(res , 404, 'group not found')
+      return ResError(res , 404, 'failed to remove members')
     }
 
-    emitEvent( req ,ALERT ,newGroupData.members , `${membersName.join()} were remove from the group`)
+    emitEvent( req ,ALERT ,newGroupData.members , `${membersName.join()} were removed from the group`)
 
     return ResSuccess(res ,200 ,  newGroupData
 
@@ -178,9 +181,12 @@ const renameGroup =  async(req ,res) => {
   try {
     const {name} = req.body ;
     const {id} = req.params ;
-
-    if(!name || !id){
-      return ResError(res, 400 , 'new name and group id not found')
+    
+    if(!name){
+      return ResError(res, 400 , 'new name not found')
+    }
+    if(!id){
+      return ResError(res, 400 , 'group id not found')
     }
 
     const renamedGroup = await Room.findOneAndUpdate({_id : id , groupChat : true , creator : req.userId} , 
@@ -189,10 +195,12 @@ const renameGroup =  async(req ,res) => {
       }} ,
       {new : true}
     )
+    
     if(!renamedGroup){
       return ResError(res , 404 , 'wrong credentials or unauthorized request')
     }
     
+    emitEvent(req ,REFRETCH_CHATS , renamedGroup.members )
     return ResSuccess(res , 200 , renamedGroup)
     
   } catch (error) {

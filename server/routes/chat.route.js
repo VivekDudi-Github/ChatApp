@@ -11,7 +11,7 @@ router.get('/rooms' , checkUser , getRooms)
 router.get('/my_group' ,checkUser , getMyGroups)
 router.put('/members/:id' , checkUser , addMembers)
 router.delete('/members/:id' , checkUser , removeMembers)
-router.patch('/rename/:id' , checkUser , renameGroup)
+router.put('/rename/:id' , checkUser , renameGroup)
 router.delete('/room/:id' , checkUser , deleteRoom)
 router.post('/leave/:id' , checkUser , leaveGroup) 
 

@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setIsMobileMenu} from '../../redux/reducer/misc'
 import { useErrors, UseSocket } from '../hook/hooks'
 import { getSocket } from '../socket/socket'
-import { NEW_MESSAGE_ALERT, NEW_REQUEST } from '../event'
+import { NEW_MESSAGE_ALERT, NEW_REQUEST, REFRETCH_CHATS } from '../event'
 import { setNewMessageAlert, setNotificationCount } from '../../redux/reducer/AlertsCount'
 
 const AppLayout = () => (Component) => { 
@@ -32,27 +32,25 @@ const AppLayout = () => (Component) => {
 
     useErrors([{isError , error}])
     
-    const newNotificationAlertHandler  = useCallback((data) => {
+    const newNotificationAlertListner  = useCallback((data) => {
       dispatch(setNotificationCount(1))
     } , [])
 
-    const newMessageAlertHandler = useCallback((data) => {
+    const newMessageAlertListner = useCallback((data) => {
       const roomID = data.roomID ;
       
       if(roomID !== RoomId)
       dispatch(setNewMessageAlert({roomID}))
     } , [RoomId])
-
-    // const alertListener = useCallback((data) => {
-    //   const messageForAlert = {
-    //     content : data ,
-    //     sender : {_id : ''}
-    //   }
-    // } , [])
+    
+    const RefetchListener = useCallback((data) => {
+      refetch()
+    } , [refetch])
     
     const eventHandlers = { 
-      [NEW_REQUEST] : newNotificationAlertHandler ,
-      [NEW_MESSAGE_ALERT] : newMessageAlertHandler ,
+      [NEW_REQUEST] : newNotificationAlertListner ,
+      [NEW_MESSAGE_ALERT] : newMessageAlertListner ,
+      [REFRETCH_CHATS] : RefetchListener ,
     }
 
     UseSocket(socket , eventHandlers )

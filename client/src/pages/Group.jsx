@@ -7,8 +7,8 @@ import { StyledLink } from '../components/styles/StylesComponent';
 import AvatarCard from '../shared/AvatarCard'
 import { sampleGroup, sampleUser } from '../shared/data';
 import UserItem from '../shared/UserItem';
-import { useGetRoomDetailsQuery, useMyGroupQuery } from '../redux/api/api';
-import { useErrors } from '../components/hook/hooks';
+import { useGetRoomDetailsQuery, useMyGroupQuery, useRenameGroupMutation } from '../redux/api/api';
+import { UseAsyncMutation, useErrors } from '../components/hook/hooks';
 import { LayoutLoader } from '../components/layout/Loaders';
 const DeleteDialog = lazy(() => import('../shared/DeleteDialog'))
 const AddMemberDialog = lazy(() => import('../shared/AddMemberDialog'))
@@ -22,6 +22,7 @@ const CurrentGroup_id = useSearchParams()[0].get('groups')
 const [isMobileOpen, setisMobileOpen] = useState(false) ;
 const [IsEdit , setIsEdit] = useState(false) ;
 
+const [members, setMembers] = useState([]) ;
 const [AddMember, setAddMember] = useState(false)
 
 const [GroupName , setGroupName] = useState('') ;
@@ -32,10 +33,8 @@ const[ConfirmDeleteDialog , setConfirmDeleteDialog] = useState(false)
 
 
 const myGroups = useMyGroupQuery() ;
-
 const groupDetails = useGetRoomDetailsQuery({room : CurrentGroup_id , populate : true} , {skip : !CurrentGroup_id })
-
-console.log(groupDetails);
+const [renameGroupApi , renameGroupIsLoading] = UseAsyncMutation(useRenameGroupMutation)
 
 
 const errors = [
@@ -56,7 +55,12 @@ useErrors(errors)
 useEffect(() => {
   if(groupDetails.data){
     setGroupName(groupDetails.data.data.name)
-    
+    setMembers(groupDetails?.data?.data?.members)
+  }
+  return () => {
+    setGroupName('')
+    setMembers([])
+    setIsEdit(false)
   }
 } , [groupDetails.data])
 
@@ -66,8 +70,10 @@ const handleMobile = () => {
 } 
 
 const updateGroupName = () => {
+  renameGroupApi("Updating Group Name" ,{room : CurrentGroup_id , name : NewGroupName})
   setGroupName(NewGroupName)
   setIsEdit(false)
+  myGroups.refetch()
 }
 
 const DeleteGroupHandler = () => {
@@ -97,7 +103,7 @@ useEffect(() => {
     setNewGroupName('')
     setIsEdit(false)
   }
-} , [CurrentGroup_id])
+} , [CurrentGroup_id , myGroups.isLoading])
 
 
 const iconBtns = 
@@ -178,7 +184,7 @@ const iconBtns =
           {IsEdit ? 
           <>
             <TextField value={NewGroupName}  onChange={e => setNewGroupName(e.target.value)}/>
-            <IconButton onClick={updateGroupName}><Done/></IconButton>
+            <IconButton onClick={updateGroupName} disabled={renameGroupIsLoading} ><Done/></IconButton>
           </> 
           :
           <>
@@ -191,8 +197,7 @@ const iconBtns =
         {/* Members */}
         <Typography alignSelf={'flex-start'} margin={'1rem'} variant='body1'>Members</Typography>
         <Stack boxSizing={'border-box'} maxWidth={'45rem'} margin={'0 0 1rem'} width={'100%'} padding={{ sm : '1rem' ,xs :'0' ,md:'1rem 4rem'}}  height={'50vh'} overflow={'auto'}>
-          {groupDetails?.data && 
-          groupDetails?.data?.data?.members.map((u) => (
+          {members.map((u) => (
             <UserItem user={u} key={u._id} UserAdded handler={removeMemberHandler}
             styling={{
                 boxShadow : ' 0 0 0.5rem rgba(0,0,0,0.5)' ,
