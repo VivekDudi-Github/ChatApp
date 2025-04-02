@@ -7,9 +7,10 @@ import { StyledLink } from '../components/styles/StylesComponent';
 import AvatarCard from '../shared/AvatarCard'
 import { sampleGroup, sampleUser } from '../shared/data';
 import UserItem from '../shared/UserItem';
-import { useGetRoomDetailsQuery, useMyGroupQuery, useRenameGroupMutation } from '../redux/api/api';
+import { useAddGroupMembersMutation, useGetRoomDetailsQuery, useMyGroupQuery, useRemoveGroupMembersMutation, useRenameGroupMutation } from '../redux/api/api';
 import { UseAsyncMutation, useErrors } from '../components/hook/hooks';
 import { LayoutLoader } from '../components/layout/Loaders';
+import toast from 'react-hot-toast';
 const DeleteDialog = lazy(() => import('../shared/DeleteDialog'))
 const AddMemberDialog = lazy(() => import('../shared/AddMemberDialog'))
 
@@ -35,7 +36,8 @@ const[ConfirmDeleteDialog , setConfirmDeleteDialog] = useState(false)
 const myGroups = useMyGroupQuery() ;
 const groupDetails = useGetRoomDetailsQuery({room : CurrentGroup_id , populate : true} , {skip : !CurrentGroup_id })
 const [renameGroupApi , renameGroupIsLoading] = UseAsyncMutation(useRenameGroupMutation)
-
+const [removeMembersApi , removeMembersApisLoading] = UseAsyncMutation(useRemoveGroupMembersMutation) 
+const [addMembersApi , addMembersApisLoading] = UseAsyncMutation(useAddGroupMembersMutation) 
 
 const errors = [
   {
@@ -85,6 +87,8 @@ const addMembersHandler = () => {
 }
 
 const removeMemberHandler = (id) =>{
+  if(members.length < 4) return toast.error("Atleast 3 members are required")
+  removeMembersApi('removing member' , {room : CurrentGroup_id , members : [id]} )
 
 } 
 
@@ -196,18 +200,20 @@ const iconBtns =
 
         {/* Members */}
         <Typography alignSelf={'flex-start'} margin={'1rem'} variant='body1'>Members</Typography>
-        <Stack boxSizing={'border-box'} maxWidth={'45rem'} margin={'0 0 1rem'} width={'100%'} padding={{ sm : '1rem' ,xs :'0' ,md:'1rem 4rem'}}  height={'50vh'} overflow={'auto'}>
+        <Stack boxSizing={'border-box'} maxWidth={'45rem'} margin={'0 0 1rem'} width={'100%'}  height={'50vh'} overflow={'auto'}>
           {members.map((u) => (
             <UserItem user={u} key={u._id} UserAdded handler={removeMemberHandler}
             styling={{
                 boxShadow : ' 0 0 0.5rem rgba(0,0,0,0.5)' ,
-                padding : '1rem' , 
+                padding : '0.4rem' ,
                 borderRadius : '1rem' , 
-                bgcolor : 'black' , 
+                bgcolor : 'gray' , 
                 color : 'white' ,
                 hover : {
                   bgcolor : 'none'
-                }
+                } ,
+                width : '100%'
+                
               }}
             />
           ))}

@@ -129,8 +129,8 @@ const removeMembers = async(req, res) => {
   try {
     const {members} = req.body ;
     const {id} = req.params ;
-
-    if(!members) {
+    
+    if(!members || !Array.isArray(members)) {
       return ResError(res ,400 , "members is required")
     }
     if(!id) {

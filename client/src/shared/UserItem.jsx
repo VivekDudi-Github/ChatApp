@@ -9,14 +9,15 @@ function UserItem({user , styling={} , handler , UserAdded  ,handlerIsLoading })
   return (
     <ListItem
     sx={{
+      width : '100%' ,
       ':hover' : {
         bgcolor : styling.hover ? 'none' : 'rgba(0,0,0,0.4)'
       } , 
       transitionDuration : '200ms' , 
     }}>
     
-      <Stack direction={'row'} alignItems={'center'} spacing={'1rem'} width={'100%'} {...styling}>
-        <AvatarCard avatar={[avatar]}/>
+      <Stack direction={'row'} alignItems={'center'} spacing={'0.5rem'} minWidth={'250px'} {...styling}>
+        <div style={{marginRight : '10px'}}><AvatarCard avatar={[avatar]}/></div>
         <Typography variant='body1' sx={{flexGrow : 1 , display : 'w'}}>
           {name}
         </Typography>
