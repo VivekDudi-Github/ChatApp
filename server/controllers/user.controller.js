@@ -272,6 +272,7 @@ const GetMyFriends = async( req, res) => {
   try {
 
     const {room} = req.query ;
+    
     const AllFriendsRoom =  await Room.find({
       groupChat : false , 
       members : {$in : req.userId} 
@@ -289,7 +290,7 @@ const GetMyFriends = async( req, res) => {
       const availableFriends = friends.filter( f => !group.members.includes(f._id) )
         
       return ResSuccess(res ,200 , availableFriends) 
-   0
+
     }else {
     return ResSuccess(res ,200 , friends)
     }

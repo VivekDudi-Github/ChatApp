@@ -7,7 +7,7 @@ import { StyledLink } from '../components/styles/StylesComponent';
 import AvatarCard from '../shared/AvatarCard'
 import { sampleGroup, sampleUser } from '../shared/data';
 import UserItem from '../shared/UserItem';
-import { useAddGroupMembersMutation, useGetRoomDetailsQuery, useMyGroupQuery, useRemoveGroupMembersMutation, useRenameGroupMutation } from '../redux/api/api';
+import { useAddGroupMembersMutation, useDeleteGroupMutation, useGetRoomDetailsQuery, useMyGroupQuery, useRemoveGroupMembersMutation, useRenameGroupMutation } from '../redux/api/api';
 import { UseAsyncMutation, useErrors } from '../components/hook/hooks';
 import { LayoutLoader } from '../components/layout/Loaders';
 import toast from 'react-hot-toast';
@@ -38,6 +38,7 @@ const groupDetails = useGetRoomDetailsQuery({room : CurrentGroup_id , populate :
 const [renameGroupApi , renameGroupIsLoading] = UseAsyncMutation(useRenameGroupMutation)
 const [removeMembersApi , removeMembersApisLoading] = UseAsyncMutation(useRemoveGroupMembersMutation) 
 const [addMembersApi , addMembersApisLoading] = UseAsyncMutation(useAddGroupMembersMutation) 
+const [deleteGroupApi , deleteGroupApiisLoading] = UseAsyncMutation(useDeleteGroupMutation)
 
 const errors = [
   {
@@ -64,7 +65,7 @@ useEffect(() => {
     setMembers([])
     setIsEdit(false)
   }
-} , [groupDetails.data])
+} , [groupDetails])
 
 
 const handleMobile = () => {
@@ -79,17 +80,19 @@ const updateGroupName = () => {
 }
 
 const DeleteGroupHandler = () => {
-  
+  deleteGroupApi( 'Deleting group...' ,CurrentGroup_id)
 }
 
-const addMembersHandler = () => {
-  setAddMember(true)
+const addMembersHandler = (members = []) => {
+  if(!CurrentGroup_id || members.length < 1)return ;
+  addMembersApi(`Adding Members to ${GroupName}...` ,{room : CurrentGroup_id , members})
+  setTimeout(() =>  groupDetails.refetch() ,  500)
 }
 
 const removeMemberHandler = (id) =>{
   if(members.length < 4) return toast.error("Atleast 3 members are required")
   removeMembersApi('removing member' , {room : CurrentGroup_id , members : [id]} )
-
+  setTimeout(() =>  groupDetails.refetch() ,  500)
 } 
 
 
@@ -219,7 +222,7 @@ const iconBtns =
           ))}
         </Stack>
         <Stack p={{ xs :'0' ,sm : '1rem',md:'1rem 4rem'}} sx={{transitionDuration : '200ms'}} gap={'5px'} direction={'row'}>
-          <Button size='large' variant='contained' sx={{ fontSize : '0.8rem' , transitionDuration : '200ms'}} startIcon={<AddIcon/>} onClick={addMembersHandler}>Add Members</Button>
+          <Button size='large' variant='contained' sx={{ fontSize : '0.8rem' , transitionDuration : '200ms'}} startIcon={<AddIcon/>} onClick={() => setAddMember(true)}>Add Members</Button>
           <Button size='large' color='error' sx={{bgcolor : '#ddd' , fontSize : '0.8rem' , transitionDuration : '200ms'}} startIcon={<DeleteIcon/>} onClick={() => setConfirmDeleteDialog(true)}>Delete Group</Button>
           
         </Stack>
@@ -229,7 +232,7 @@ const iconBtns =
         ConfirmDeleteDialog && 
         <Suspense fallback={<Backdrop />}>
           <DeleteDialog handleClose={() => setConfirmDeleteDialog(false)} deleteHandler={DeleteGroupHandler} open={ConfirmDeleteDialog} >
-            Do you Really want to delete this group ?
+            Do you Really want to delete this group?
           </DeleteDialog>
         </Suspense>
       }
@@ -237,7 +240,7 @@ const iconBtns =
       {
         AddMember && 
         <Suspense fallback={<Backdrop />}>
-          <AddMemberDialog handleClose={() => setAddMember(false)} deleteHandler={DeleteGroupHandler} open={ConfirmDeleteDialog} />
+          <AddMemberDialog handleClose={() => setAddMember(false)} AddNewMemberHandler={addMembersHandler} room={CurrentGroup_id}  open={AddMember} />
         </Suspense>
       }</>
     :

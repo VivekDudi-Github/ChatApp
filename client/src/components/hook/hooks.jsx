@@ -35,7 +35,6 @@ const UseAsyncMutation = (mutationHook) => {
     try {
       const res  = await mutate(...args)
     if(res.data){
-      console.log(res?.data?.data);
       
         toast.success( 'Operation Successfull', {id : toastId})
         setData(res.data)

@@ -1,18 +1,34 @@
-import { Button, Dialog, DialogActions, DialogTitle, Stack, Typography } from '@mui/material'
+import { Button, Dialog, DialogActions, DialogTitle, Skeleton, Stack, Typography } from '@mui/material'
 import React , {useEffect, useState} from 'react'
-import { sampleUser } from './data'
 import UserItem from './UserItem'
+import { useAvailableFriendsQuery} from '../redux/api/api'
+import toast from 'react-hot-toast'
+import { useErrors } from '../components/hook/hooks'
 
-function AddMemberDialog({isLoading ,handleClose , AddNewMemberHandler , chat_id}) {
+function AddMemberDialog({handleClose , AddNewMemberHandler , room}) {
   const [members, setMembers] = useState([])
-  const [users ,setUsers] = useState(sampleUser) 
+  const [users, setUsers] = useState([])
 
+  const {data , isLoading, isError , error , refetch} = useAvailableFriendsQuery(room )
   
-  const AddMemberSubmitHandler = () => {} ;
+  
+  useErrors([{isError , error}])
+  
+  useEffect(() => {
+    if(data){
+      setUsers(data.data)
+  }
+  } , [data])
+
+  useEffect(() => {refetch()} , [])
+
+  const AddMemberSubmitHandler = () => {
+    AddNewMemberHandler(members) ;
+    closeHandler() ;
+  } ;
   const closeHandler = () => {
     setMembers([])
-    handleClose() ;
-    
+    handleClose() ;  
   } ;
 
   const selectMemberHandler = (id) => {
@@ -28,19 +44,24 @@ function AddMemberDialog({isLoading ,handleClose , AddNewMemberHandler , chat_id
       <Stack minWidth={'20rem'} p={'1rem 0'}>
         <DialogTitle textAlign={'center'}>Add Members</DialogTitle>
 
-        <Stack>
-          { users.length > 0 ? 
-          users.map((u) => (
-            <UserItem key={u.user_id} user={u} UserAdded={members.includes(u.user_id)} handler={selectMemberHandler} />
-          )) 
-          :
-          <Typography textAlign={'center'} margin={'2rem'} >No friends</Typography>
-          
+        {isLoading ? (<Skeleton/>
+          ) : (
+            <Stack>
+            { users.length > 0 ? 
+            users.map((u) => (
+              <UserItem key={u._id} user={u} UserAdded={members.includes(u._id)} handler={selectMemberHandler} />
+            )) 
+            :
+            <Typography textAlign={'center'} margin={'2rem'} >No friends</Typography>
+            
+          }
+          </Stack>
+          )
         }
-        </Stack>
+
         <DialogActions >
           <Button color='error' onClick={closeHandler}>Cancel</Button>
-          <Button color='primary' variant='contained' onClick={AddMemberSubmitHandler} disabled={isLoading || users.length == 0} >Add Members</Button>
+          <Button color='primary' variant='contained' onClick={AddMemberSubmitHandler} disabled={ users.length == 0} >Add Members</Button>
         </DialogActions>
       </Stack>
     </Dialog>

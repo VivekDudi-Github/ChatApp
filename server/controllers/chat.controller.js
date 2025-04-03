@@ -117,7 +117,7 @@ const addMembers = async (req , res) => {
       return ResError(res , 404, 'group not found')
     }
 
-    return ResSuccess(res ,200 , newGroupData)
+    return ResSuccess(res ,200 )
 
   } catch (error) {
     console.log('error in addding members for group'  , error);

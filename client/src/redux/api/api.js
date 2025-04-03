@@ -137,6 +137,23 @@ const api = createApi({
       invalidatesTags : ["Chat"]
     }) ,
 
+    availableFriends : builder.query({
+      query: (room) => ({
+        url : room ? 'user/friends/?room='+room : 'user/friends'  ,
+        credentials : 'include' ,
+      }) , 
+      invalidatesTags : ["User"]
+    }) ,
+
+    deleteGroup : builder.mutation({
+      query : (room) => ({
+        url : `/chat/room/${room}` ,
+        credentials : 'include' ,
+        method : 'DELETE'
+      }) ,
+      invalidatesTags : ['Chats']
+    })
+
   })
 })
 
@@ -154,7 +171,9 @@ export const {
   useGetMyFriendsQuery ,
   useCreatenewGroupMutation ,
   useRenameGroupMutation ,
+  useAvailableFriendsQuery ,
 
+  useDeleteGroupMutation ,
   useRemoveGroupMembersMutation ,
   useAddGroupMembersMutation ,
 } = api
