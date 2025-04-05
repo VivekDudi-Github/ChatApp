@@ -21,7 +21,7 @@ const AppLayout = () => (Component) => {
     
     const {user } = useSelector(state => state.auth) ;
     const {isMobileMenu} = useSelector(state => state.misc) ;
-
+   
 
     const handleMobileClose = () => dispatch(setIsMobileMenu(false))
     

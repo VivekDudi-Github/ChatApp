@@ -116,7 +116,7 @@ const addMembers = async (req , res) => {
     if(!newGroupData) {
       return ResError(res , 404, 'group not found')
     }
-
+    emitEvent(req ,REFRETCH_CHATS , [...members])
     return ResSuccess(res ,200 )
 
   } catch (error) {

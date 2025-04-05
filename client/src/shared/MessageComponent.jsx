@@ -21,7 +21,7 @@ function MessageComponent({data , user , SenderDetail}) {
       
     }}>
     {<div style={{ display : 'flex' , width: "100%" , alignItems : 'end' , justifyContent : `${SameSender ? 'end' : 'start'}` , gap : '5px' }}>
-      <Avatar sx={{width : '30px' , height : '30px'}} src={SenderDetail.avatar} />
+      <Avatar sx={{width : '30px' , height : '30px'}} src={SenderDetail?.avatar?.url} />
       <Typography color='rgba(150,20,200,0.)' fontSize={14} fontWeight={600} variant='caption' >{SenderDetail.name}</Typography>
     </div>
     }

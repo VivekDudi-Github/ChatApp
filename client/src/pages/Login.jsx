@@ -24,6 +24,7 @@ function Login() {
   
   const UsernameRegex = /^[a-zA-Z0-9_@]{3,15}$/ ;
 
+console.log(avatar);
 
   const config = {
     withCredentials : true ,
@@ -127,7 +128,7 @@ function Login() {
                     >
                         <>
                             <CameraAlt />
-                            <VisuallyHiddenInput onChange={(e) => setAvatar(e.target.files[0])}  type='file' />
+                            <VisuallyHiddenInput onChange={(e) => setAvatar(e.target.files[0])} accept='image/png , image/jpg , image/jpeg ' required type='file' />
                         </>
                     </IconButton>
                 </Stack>

@@ -49,6 +49,8 @@ export const uploadFilesTOCloudinary = async(files =[]) => {
 
     return formattedResult
   } catch (error) {
+    console.log(files.length);
+    
     if(files) files.forEach(f => fs.unlinkSync(f.path))
     console.log( '---error-- while uploading files to cloudinary' ,error );
     throw new ErrorHandler('Error uploading files in cloundinary' , 500)

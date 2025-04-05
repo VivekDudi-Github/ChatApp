@@ -17,7 +17,10 @@ function UserItem({user , styling={} , handler , UserAdded  ,handlerIsLoading })
     }}>
     
       <Stack direction={'row'} alignItems={'center'} spacing={'0.5rem'} minWidth={'250px'} {...styling}>
-        <div style={{marginRight : '10px'}}><AvatarCard avatar={[avatar]}/></div>
+        <div style={{marginRight : '10px'}}>
+          <AvatarCard avatar={avatar.url ? [avatar.url] : [avatar]}/>
+        </div>
+        
         <Typography variant='body1' sx={{flexGrow : 1 , display : 'w'}}>
           {name}
         </Typography>

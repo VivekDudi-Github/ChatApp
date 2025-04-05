@@ -69,7 +69,7 @@ const NotificationItem = ({sender , handler }) => {
         transitionDuration : '200ms' , 
         }}>
         <Stack direction={'row'} alignItems={'center'} spacing={'1rem'} width={'100%'}>
-          <Avatar src={sender?.avatar}/>
+          <Avatar src={sender?.avatar?.url  }/>
           <Typography variant='body1'
             sx={{
               flexGrow : 1 ,  

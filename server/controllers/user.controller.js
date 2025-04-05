@@ -4,7 +4,7 @@ import { generateRefreshTokenSetCookies } from "../utils/generateToken.js";
 import { Room } from "../models/room.model.js";
 import {Request} from '../models/request.model.js'
 import { emitEvent } from "../utils/features.js";
-import { NEW_REQUEST } from "../constants/event.js";
+import { NEW_REQUEST, REFRETCH_CHATS } from "../constants/event.js";
 import { uploadFilesTOCloudinary } from "../utils/features.js";
 
 const ResError = (res , code , error) => {
@@ -253,7 +253,8 @@ const AnswersRequest = async(req, res) => {
         creator : id ,
         members : [id , req.userId] ,
       })
-
+      
+      emitEvent(res ,REFRETCH_CHATS , [req.userId._id.toString() , id])
       return ResSuccess(res ,200 ,newRequest)
     }
 
