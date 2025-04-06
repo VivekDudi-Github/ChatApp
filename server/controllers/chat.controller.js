@@ -104,7 +104,7 @@ const addMembers = async (req , res) => {
     if(!members || !id ) {
       return ResError(res ,400 , "members and group id is required")
     }
-
+    
     const newGroupData = await Room.findOneAndUpdate({_id : id , creator : req.userId} , 
       {
         $addToSet : {
@@ -116,7 +116,10 @@ const addMembers = async (req , res) => {
     if(!newGroupData) {
       return ResError(res , 404, 'group not found')
     }
-    emitEvent(req ,REFRETCH_CHATS , [...members])
+    
+    const groupMembers = newGroupData.members.map(m => m.toString())
+
+    emitEvent(req ,REFRETCH_CHATS , groupMembers)
     return ResSuccess(res ,200 )
 
   } catch (error) {
@@ -164,7 +167,9 @@ const removeMembers = async(req, res) => {
     if(!newGroupData) {
       return ResError(res , 404, 'failed to remove members')
     }
-
+    const groupMembers = newGroupData.members.map(m => m.toString())
+    
+    emitEvent(req , REFRETCH_CHATS , [...groupMembers , ...members ])
     emitEvent( req ,ALERT ,newGroupData.members , `${membersName.join()} were removed from the group`)
 
     return ResSuccess(res ,200 ,  newGroupData

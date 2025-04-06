@@ -224,7 +224,6 @@ const iconBtns =
         <Stack p={{ xs :'0' ,sm : '1rem',md:'1rem 4rem'}} sx={{transitionDuration : '200ms'}} gap={'5px'} direction={'row'}>
           <Button size='large' variant='contained' sx={{ fontSize : '0.8rem' , transitionDuration : '200ms'}} startIcon={<AddIcon/>} onClick={() => setAddMember(true)}>Add Members</Button>
           <Button size='large' color='error' sx={{bgcolor : '#ddd' , fontSize : '0.8rem' , transitionDuration : '200ms'}} startIcon={<DeleteIcon/>} onClick={() => setConfirmDeleteDialog(true)}>Delete Group</Button>
-          vc
         </Stack>
       </Grid>
 
@@ -295,5 +294,4 @@ const GeoupListItems =memo (({group , CurrentGroup_id}) => {
     </Stack>
   </StyledLink>)
 })
-
 

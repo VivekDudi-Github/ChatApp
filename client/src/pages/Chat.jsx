@@ -210,18 +210,16 @@ function Chat({room}) {
         }}
         ref={containerRef}
         >
-          {oldMessagesChunks.map((m ,index) => {
-              const member = members.find((member) => member._id === m.sender._id )   
+          {oldMessagesChunks &&
+          oldMessagesChunks.map((message ,index) => {
               
-              
-              return <MessageComponent key={index} data={m}  SenderDetail= {member} user={user}/>
+              return <MessageComponent key={index} data={message}  SenderDetail= {message.sender} user={user}/>
             }).reverse()
           }
 
-          {
+          {messages &&
             messages.map((m ,index) => {
-              const member = members.find((member) => member._id === m.sender )
-              return <MessageComponent key={ m._id} data={m} SenderDetail = {member} user={user}/>
+              return <MessageComponent key={ m._id} data={m} SenderDetail = {m.sender} user={user}/>
             })
           }
 
