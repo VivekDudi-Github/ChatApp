@@ -218,13 +218,18 @@ const deleteRoom =  async(req , res) => {
   try {
     const {id} =  req.params ;
   
+    const group  = await Room.findOne({_id : id , creator : req.userId })
+
     const result  = await Room.deleteOne({_id : id , creator : req.userId })
+
 
     if (result.deletedCount === 0) {
       return ResError(res, 404, 'Room not found or you do not have permission to delete it');
     }
-    const messages = await Message.deleteOne({room : id})
+    await Message.deleteMany({room : id})
+    const members = group.members.map(m => m.toString())
 
+    emitEvent(req , REFRETCH_CHATS , members )
     return ResSuccess(res , 200 , 'Room removed')
 
   } catch (error) {
@@ -325,7 +330,14 @@ const getMessages =  TryCatch(async( req, res) => {
     return ResError(res, 400 , 'no query provided')
   }
 
-  const messages = await Message.find({room : id})
+  const IsRoom = await Room.findOne({
+    _id : id 
+  })  
+  
+  if (!IsRoom) return ResError(res , 404 , "Room doesn't exists ")
+  if( !IsRoom.members.includes(req.userId._id)) return ResError(res , 403  , 'You are not a member of this group.')
+
+    const messages = await Message.find({room : id})
   .sort({createdAt : -1})
   .skip(skip) 
   .limit(limit)
@@ -350,7 +362,12 @@ const getRoomDetails = TryCatch( async(req, res) => {
   
   if(req.query.populate === 'true'){
         
-    const MyRoom =  await Room.findById(req.params.id).populate('members' , 'name avatar')
+    const MyRoom =  await Room.findOne({
+      _id : req.params.id ,
+      members : {
+        $in : req.userId._id ,
+      }
+    }).populate('members' , 'name avatar')
     
     if(!MyRoom){
       return ResError(res, 404 , 'Room not found')

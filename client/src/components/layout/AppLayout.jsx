@@ -1,9 +1,9 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Header from './Header'
 import Title from '../../shared/Title'
 import { Drawer, Grid, Skeleton } from '@mui/material'
 import ChatList from '../specific/CHatList'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import Profile from '../specific/Profile'
 import { useMyChatsQuery } from '../../redux/api/api'
 import { useDispatch, useSelector } from 'react-redux'
@@ -15,6 +15,7 @@ import { setNewMessageAlert, setNotificationCount } from '../../redux/reducer/Al
 
 const AppLayout = () => (Component) => { 
   return (props) => {
+    const navigate = useNavigate() ;
     const dispatch = useDispatch() ;
     const params = useParams() ;
     const {RoomId} = params ;
@@ -53,8 +54,18 @@ const AppLayout = () => (Component) => {
       [REFRETCH_CHATS] : RefetchListener ,
     }
 
-    UseSocket(socket , eventHandlers )
-
+    UseSocket(socket , eventHandlers ) 
+    
+    useEffect(() => {
+      if(!RoomId) return ;
+      
+      if(RoomId && data){
+        const  isRoom = data?.data.filter(d => d._id === RoomId)
+        if(isRoom.length == 0){
+          navigate('/')
+        }
+      }
+    } , [RoomId , data])
       
     return (
       <>

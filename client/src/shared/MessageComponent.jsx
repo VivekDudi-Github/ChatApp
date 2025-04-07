@@ -6,7 +6,8 @@ import RenderAttachment from './RenderAttachments';
 
 function MessageComponent({data , user , SenderDetail}) {
   const {sender , content , createdAt , attachment} = data ;
-  const SameSender = SenderDetail ? SenderDetail._id === user._id : null ;
+  
+  const SameSender = SenderDetail ? SenderDetail === user._id : null ;
 
   const date = moment(createdAt).fromNow() ;
   return (

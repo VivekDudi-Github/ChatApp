@@ -74,6 +74,7 @@ function Chat({room}) {
     
     if(!input || !membersIdArray || !room)  return toast.error('Data is being fetched . Please try again')
     
+    
     socket.emit(NEW_MESSAGE ,{room : room , members : membersIdArray , message : input })
     setInput('')
   
@@ -212,6 +213,7 @@ function Chat({room}) {
         >
           {oldMessagesChunks &&
           oldMessagesChunks.map((message ,index) => {
+              console.log(oldMessagesChunks[0]);
               
               return <MessageComponent key={index} data={message}  SenderDetail= {message.sender} user={user}/>
             }).reverse()
