@@ -52,11 +52,11 @@ io.on('connection' ,(socket) => {
 
   console.log(userSocketIDs);
   
-  socket.on(NEW_MESSAGE , async({room , members , message}) => {
+  socket.on(NEW_MESSAGE , async({room , members , message , sender}) => {
 
     const messgaeForRealTime = {
       _id :  uuid() ,
-      sender : socket.user._id ,
+      sender : sender ,
       room : room ,
       createdAt : new Date().toString() ,
       content : message 

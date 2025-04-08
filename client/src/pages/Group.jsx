@@ -5,7 +5,6 @@ import {useNavigate, useSearchParams} from 'react-router-dom'
 import { memo } from 'react';
 import { StyledLink } from '../components/styles/StylesComponent';
 import AvatarCard from '../shared/AvatarCard'
-import { sampleGroup, sampleUser } from '../shared/data';
 import UserItem from '../shared/UserItem';
 import { useAddGroupMembersMutation, useDeleteGroupMutation, useGetRoomDetailsQuery, useMyGroupQuery, useRemoveGroupMembersMutation, useRenameGroupMutation } from '../redux/api/api';
 import { UseAsyncMutation, useErrors } from '../components/hook/hooks';
@@ -48,7 +47,7 @@ const errors = [
   {
     isError : groupDetails.isError ,
     error : groupDetails?.error ,
-    fallback : groupDetails.isError ? ()=> navigate('/') : null ,
+    fallback : groupDetails.isError ? ()=> navigate('/groups') : null ,
     toastText : groupDetails.isError ? groupDetails?.error?.data?.error : null
   }
 ]
@@ -81,6 +80,7 @@ const updateGroupName = () => {
 
 const DeleteGroupHandler = () => {
   deleteGroupApi( 'Deleting group...' ,CurrentGroup_id)
+  setTimeout(() => {myGroups.refetch()} , 2000)
 }
 
 const addMembersHandler = (members = []) => {
@@ -150,6 +150,7 @@ const iconBtns =
       </IconButton>
     </Tooltip>
   </>
+
 
 
 
@@ -230,7 +231,7 @@ const iconBtns =
       {
         ConfirmDeleteDialog && 
         <Suspense fallback={<Backdrop />}>
-          <DeleteDialog handleClose={() => setConfirmDeleteDialog(false)} deleteHandler={DeleteGroupHandler} open={ConfirmDeleteDialog} >
+          <DeleteDialog handleClose={() => setConfirmDeleteDialog(false)} deleteHandler={DeleteGroupHandler} openDelete={ConfirmDeleteDialog} >
             Do you Really want to delete this group?
           </DeleteDialog>
         </Suspense>

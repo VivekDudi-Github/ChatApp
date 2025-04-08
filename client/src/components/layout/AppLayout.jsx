@@ -45,6 +45,7 @@ const AppLayout = () => (Component) => {
     } , [RoomId])
     
     const RefetchListener = useCallback((data) => {
+      console.log('refetch run');
       refetch()
     } , [refetch])
     

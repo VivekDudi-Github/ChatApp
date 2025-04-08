@@ -83,7 +83,8 @@ const api = createApi({
       query : () => ({
         url : '/chat/my_group' ,
         credentials : 'include'
-      })
+      }) , 
+      invalidatesTags : ["Chats"]
     }) ,
 
     getMyFriends :  builder.query({
@@ -104,7 +105,7 @@ const api = createApi({
         credentials : 'include'  , 
         body : {members , name} 
       }) ,
-      invalidatesTags : ["Chat"]
+      invalidatesTags : ["Chats"]
     }) ,
 
     renameGroup : builder.mutation({
@@ -114,7 +115,7 @@ const api = createApi({
         credentials : "include"  ,
         body : {name : name}
       }) , 
-      invalidatesTags : ["Chat"]
+      invalidatesTags : ["Chats"]
     }) ,
 
     removeGroupMembers : builder.mutation({
@@ -124,7 +125,7 @@ const api = createApi({
         credentials : "include"  ,
         body : {members : [...members]}
       }) , 
-      invalidatesTags : ["Chat"]
+      invalidatesTags : ["Chats"]
     }) ,
 
     addGroupMembers : builder.mutation({
@@ -134,7 +135,7 @@ const api = createApi({
         credentials : "include"  ,
         body : {members : [...members]}
       }) , 
-      invalidatesTags : ["Chat"]
+      invalidatesTags : ["Chats"]
     }) ,
 
     availableFriends : builder.query({

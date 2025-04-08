@@ -1,9 +1,9 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material'
 import React from 'react'
 
-function DeleteDialog({children , open , handleClose , deleteHandler}) {
+function DeleteDialog({children  , openDelete = false , handleClose , deleteHandler}) {
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={openDelete} onClose={handleClose}>
       <DialogTitle>
         Confirm Delete
       </DialogTitle>

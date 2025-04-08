@@ -44,6 +44,7 @@ function Chat({room}) {
   const [errors , setErrors] = useState([]) 
   const [ oldMessagesChunks , setOldMessageChunks] = useState([]) ;
    
+  const [members , setMembers] = useState([]) ;
 
   const socket = getSocket() ;
   const populate= true ;
@@ -53,7 +54,7 @@ function Chat({room}) {
   
 
   
-  const members = roomDetails?.data?.data?.members ;
+  
 
   useEffect(() => {
     return () => {
@@ -74,8 +75,14 @@ function Chat({room}) {
     
     if(!input || !membersIdArray || !room)  return toast.error('Data is being fetched . Please try again')
     
-    
-    socket.emit(NEW_MESSAGE ,{room : room , members : membersIdArray , message : input })
+    const sender = {
+      name : user.name ,
+      avatar : {
+        url : user.avatar.url ,
+      } ,
+      _id : user._id 
+    }
+    socket.emit(NEW_MESSAGE ,{room : room , members : membersIdArray , message : input , sender : sender })
     setInput('')
   
   }
@@ -137,7 +144,8 @@ function Chat({room}) {
       let data = oldMessagesChunk?.data?.data?.messages
       setTotalPageNo(oldMessagesChunk?.data?.data?.total_pages)
       setOldMessageChunks(prev => [...prev , ...data ])  
-      
+      setMembers(roomDetails?.data?.data?.members)
+
       setTimeout(() => {
         const newSrollHeight = containerRef.current.scrollHeight ;
         
@@ -181,6 +189,7 @@ function Chat({room}) {
     setInput(e.target.value) ;
     const membersId = members.map((m) => m._id )  
     if(!IAmTyping){
+      
       socket.emit(START_TYPING , { members : membersId , room}) ;
       setIAmTyping(true) 
     }
@@ -213,7 +222,6 @@ function Chat({room}) {
         >
           {oldMessagesChunks &&
           oldMessagesChunks.map((message ,index) => {
-              console.log(oldMessagesChunks[0]);
               
               return <MessageComponent key={index} data={message}  SenderDetail= {message.sender} user={user}/>
             }).reverse()

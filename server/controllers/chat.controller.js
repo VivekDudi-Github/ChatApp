@@ -48,7 +48,7 @@ try {
       members : GroupMembers ,
     })
     emitEvent(req , ALERT , GroupMembers ,`Welcome to ${name} group`)
-    emitEvent(req , REFRETCH_CHATS , members)
+    emitEvent(req , REFRETCH_CHATS , [...members , req.userId._id.toString()])
     return ResSuccess(res, 201 , group)
 
 

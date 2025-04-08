@@ -34,9 +34,8 @@ function NewGroup() {
   const submitHandler =async () => {
     if(!groupName) {return toast.error('Please provide the name for group.')} 
     if(members.length < 2) {return toast.error('Please select atleast two members to create a new group.')}
-    console.log("shuru");
     
-    await createNewGroup('Creating new group' ,{name : groupName , members : members})
+    await createNewGroup('Creating new group..' ,{name : groupName , members : members})
     
     closeHandler()
   } ;
