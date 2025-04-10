@@ -4,10 +4,11 @@ import React from 'react'
 function AvatarCard({avatar = [] , max = 4}) {
   return (
     <Stack direction={'row'} spacing={0.5}>
-      <AvatarGroup max={max} sx={{position : 'relative'}} >
+      <AvatarGroup open max={max} sx={{position : 'relative'}} >
         <Box height={'3rem'} width={'50px'}>
           {avatar && avatar.map((item , index) =>  
             <Avatar 
+              open
               key={index}
               src={item}
               alt='no_img'

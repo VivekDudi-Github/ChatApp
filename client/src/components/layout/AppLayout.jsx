@@ -1,17 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { Suspense, useCallback, useEffect, useState } from 'react'
 import Header from './Header'
 import Title from '../../shared/Title'
-import { Drawer, Grid, Skeleton } from '@mui/material'
+import { Backdrop, Drawer, Grid, Skeleton } from '@mui/material'
 import ChatList from '../specific/CHatList'
 import { useNavigate, useParams } from 'react-router-dom'
 import Profile from '../specific/Profile'
 import { useMyChatsQuery } from '../../redux/api/api'
 import { useDispatch, useSelector } from 'react-redux'
-import { setIsMobileMenu} from '../../redux/reducer/misc'
+import { setIsDeleteMenu, setIsMobileMenu} from '../../redux/reducer/misc'
 import { useErrors, UseSocket } from '../hook/hooks'
 import { getSocket } from '../socket/socket'
 import { NEW_MESSAGE_ALERT, NEW_REQUEST, REFRETCH_CHATS } from '../event'
 import { setNewMessageAlert, setNotificationCount } from '../../redux/reducer/AlertsCount'
+import DeleteDialog from '../../shared/DeleteDialog'
 
 const AppLayout = () => (Component) => { 
   return (props) => {
@@ -20,8 +21,11 @@ const AppLayout = () => (Component) => {
     const params = useParams() ;
     const {RoomId} = params ;
     
+    const [deleteChatName , setdeleteChatName] = useState('') ;
+    const [deleteChatid , setdeleteChatid] = useState('') ;
+
     const {user } = useSelector(state => state.auth) ;
-    const {isMobileMenu} = useSelector(state => state.misc) ;
+    const {isMobileMenu , isDeleteMenu} = useSelector(state => state.misc) ;
    
 
     const handleMobileClose = () => dispatch(setIsMobileMenu(false))
@@ -68,6 +72,16 @@ const AppLayout = () => (Component) => {
       }
     } , [RoomId , data])
       
+    const openDeleteChatDialog = (id , name) => {
+      dispatch(setIsDeleteMenu(true))
+      setdeleteChatName(name) ;
+      setdeleteChatid(id)
+    }
+    const handleDeleteChat = () => {
+      console.log(deleteChatName , deleteChatid);
+      
+    }
+
     return (
       <>
         <Header />
@@ -75,7 +89,7 @@ const AppLayout = () => (Component) => {
 
         {isLoading ? <Skeleton/> : (
             <Drawer open={isMobileMenu} onClose={handleMobileClose} >
-              <ChatList w='70vw'  chats={data?.data} RoomId={RoomId} handleDeleteChat={() => console.log('chat deleted')} />
+              <ChatList w='70vw'  chats={data?.data} RoomId={RoomId} handleDeleteChat={openDeleteChatDialog} />
             </Drawer>
           ) 
         }
@@ -89,7 +103,7 @@ const AppLayout = () => (Component) => {
             height={'100%'}
           >  
             {isLoading ? <Skeleton /> : 
-            <ChatList chats={data.data} RoomId={RoomId} handleDeleteChat={() => console.log('chat deleted')} />
+            <ChatList chats={data.data} RoomId={RoomId} handleDeleteChat={openDeleteChatDialog} />
             }
           </Grid>
 
@@ -106,6 +120,11 @@ const AppLayout = () => (Component) => {
             <Profile />
           </Grid>
         </Grid>
+        <Suspense fallback={<Backdrop open />}>
+          <DeleteDialog handleClose={() => dispatch(setIsDeleteMenu(false))} deleteHandler={handleDeleteChat}  openDelete={isDeleteMenu} >
+            Do you Really want to delete {deleteChatName} chat?
+          </DeleteDialog>
+        </Suspense>
       </>
     )
   }

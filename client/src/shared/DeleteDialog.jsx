@@ -1,11 +1,11 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material'
 import React from 'react'
 
-function DeleteDialog({children  , openDelete = false , handleClose , deleteHandler}) {
+function DeleteDialog({children  , openDelete = false , handleClose , deleteHandler , item}) {
   return (
     <Dialog open={openDelete} onClose={handleClose}>
       <DialogTitle>
-        Confirm Delete
+        Confirm Delete {item && item}
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
