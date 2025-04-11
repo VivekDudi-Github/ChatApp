@@ -13,6 +13,7 @@ import { getSocket } from '../socket/socket'
 import { NEW_MESSAGE_ALERT, NEW_REQUEST, REFRETCH_CHATS } from '../event'
 import { setNewMessageAlert, setNotificationCount } from '../../redux/reducer/AlertsCount'
 import DeleteDialog from '../../shared/DeleteDialog'
+import toast from 'react-hot-toast'
 
 const AppLayout = () => (Component) => { 
   return (props) => {
@@ -21,9 +22,7 @@ const AppLayout = () => (Component) => {
     const params = useParams() ;
     const {RoomId} = params ;
     
-    const [deleteChatName , setdeleteChatName] = useState('') ;
-    const [deleteChatid , setdeleteChatid] = useState('') ;
-
+    const [deleteChat , setdeleteChat] = useState({}) ;
     const {user } = useSelector(state => state.auth) ;
     const {isMobileMenu , isDeleteMenu} = useSelector(state => state.misc) ;
    
@@ -72,14 +71,15 @@ const AppLayout = () => (Component) => {
       }
     } , [RoomId , data])
       
-    const openDeleteChatDialog = (id , name) => {
+    const openDeleteChatDialog = (id ,name ,groupChat) => {
       dispatch(setIsDeleteMenu(true))
-      setdeleteChatName(name) ;
-      setdeleteChatid(id)
+      setdeleteChat({
+        id , groupChat , name
+      }) ;
     }
     const handleDeleteChat = () => {
-      console.log(deleteChatName , deleteChatid);
-      
+      if(!deleteChat?.name || !deleteChat?.id || !deleteChat?.name ) return toast.error('Some error occured! Please try again or refresh the page.') ;
+       
     }
 
     return (
@@ -122,7 +122,12 @@ const AppLayout = () => (Component) => {
         </Grid>
         <Suspense fallback={<Backdrop open />}>
           <DeleteDialog handleClose={() => dispatch(setIsDeleteMenu(false))} deleteHandler={handleDeleteChat}  openDelete={isDeleteMenu} >
-            Do you Really want to delete {deleteChatName} chat?
+            {
+              deleteChat?.groupChat ? 
+              <>Do You want to leave <b>{deleteChat?.name} </b>Group?</>
+              :
+              <>Do you really want to delete <b>{deleteChat?.name} Chat</b> ?</>
+            }
           </DeleteDialog>
         </Suspense>
       </>

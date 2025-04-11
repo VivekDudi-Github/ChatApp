@@ -24,7 +24,7 @@ return (
       const IsOnline = members?.some((member) => onlineUsers.includes(_id)) ;
 
       return (
-        <ChatItem  key={index} newMessage={newMessages} name={ name} _id={_id} handleDeleteChatOpen={handleDeleteChat}  isOnline={IsOnline}
+        <ChatItem  key={index} groupChat={groupChat} newMessage={newMessages} name={ name} _id={_id} handleDeleteChatOpen={handleDeleteChat}  isOnline={IsOnline}
           avatar={ avatar.url ? [avatar.url] : [avatar]  } sameSender={RoomId === _id}
         />
       )

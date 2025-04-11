@@ -21,7 +21,7 @@ function ChatItem({
     sx={{
       padding : '0rem'
     }}
-    onContextMenu={(e) => handleDeleteChatOpen(_id , name)}
+    onContextMenu={(e) => handleDeleteChatOpen(_id , name , groupChat)}
     onClick={() => dispatch(resetNewMessageAlert({roomID : _id}))}
     >
 
