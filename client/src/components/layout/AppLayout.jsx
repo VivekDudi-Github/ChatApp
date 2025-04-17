@@ -79,7 +79,6 @@ const AppLayout = () => (Component) => {
     }
     const handleDeleteChat = () => {
       if(!deleteChat?.name || !deleteChat?.id || !deleteChat?.name ) return toast.error('Some error occured! Please try again or refresh the page.') ;
-       
     }
 
     return (
@@ -124,9 +123,9 @@ const AppLayout = () => (Component) => {
           <DeleteDialog handleClose={() => dispatch(setIsDeleteMenu(false))} deleteHandler={handleDeleteChat}  openDelete={isDeleteMenu} >
             {
               deleteChat?.groupChat ? 
-              <>Do You want to leave <b>{deleteChat?.name} </b>Group?</>
+              <>Do You want to <b>LEAVE <i>{deleteChat?.name}</i> </b>Group?</>
               :
-              <>Do you really want to delete <b>{deleteChat?.name} Chat</b> ?</>
+              <>Do you really want to <b>DELETE <i>{deleteChat?.name}</i> Chat</b> ?</>
             }
           </DeleteDialog>
         </Suspense>

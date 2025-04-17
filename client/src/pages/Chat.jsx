@@ -13,9 +13,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import FileMenu from '../components/dialogs/FileMenu';
-import { setIsFileOpen } from '../redux/reducer/misc';
+import { setIsFileOpen, setIsMessageMenu } from '../redux/reducer/misc';
 import { START_TYPING, STOP_TYPING } from '../components/Constants/events';
 import TypingLoader from '../shared/TypingLoader';
+import MessageMenu from '../components/dialogs/MessageMenu';
 
 
 function Chat({room}) {
@@ -30,8 +31,12 @@ function Chat({room}) {
 
   const [oldScrollHeight , setOldScrollHeight] = useState(null)
   const [ input , setInput] = useState('') ;
-  const [ FileMenuAnchor , setFileMenuAnchor] = useState(null) ;
   
+  const [FileMenuAnchor , setFileMenuAnchor] = useState(null) ;
+  const [MessageAnchor , setMessageAnchor]  = useState(null) ;
+  const [MessageId , setMessageId] = useState(null)
+
+
   const [IAmTyping , setIAmTyping] = useState(false) ;
   const [userTyping , setuserTyping] = useState(false) ;
 
@@ -201,7 +206,13 @@ function Chat({room}) {
     } , [3000])
   }
 
-  
+  const handleContextMenu = (e , id) => {
+    console.log(e.currentTarget , id);
+    
+    setMessageAnchor(e.currentTarget) ;
+    setMessageId(id)
+    dispatch(setIsMessageMenu(true)) ;
+  }
 
   return roomDetails.isLoading ? 
   (<Skeleton/>
@@ -223,13 +234,13 @@ function Chat({room}) {
           {oldMessagesChunks &&
           oldMessagesChunks.map((message ,index) => {
               
-              return <MessageComponent key={index} data={message}  SenderDetail= {message.sender} user={user}/>
+              return <MessageComponent key={index} data={message}  SenderDetail= {message.sender} user={user} ContextHandler={handleContextMenu}/>
             }).reverse()
           }
 
           {messages &&
             messages.map((m ,index) => {
-              return <MessageComponent key={ m._id} data={m} SenderDetail = {m.sender} user={user}/>
+              return <MessageComponent key={ m._id} data={m} SenderDetail = {m.sender} user={user} ContextHandler={handleContextMenu}/>
             })
           }
 
@@ -266,6 +277,7 @@ function Chat({room}) {
 
       </form>
       <FileMenu anchorEl={FileMenuAnchor} RoomId={room}/>
+      <MessageMenu anchorEl={MessageAnchor} id={MessageId}/>
     </>
   )
 }

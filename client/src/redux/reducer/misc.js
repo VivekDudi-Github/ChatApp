@@ -7,6 +7,7 @@ const initialState = {
   isMobileMenu : false ,
   isSearchOpen : false ,
   isFileMenu : false ,
+  isMessageMenu : false ,
   isDeleteMenu : false ,
   uploadingLoader : false ,
   selectedDeleteChat : {
@@ -38,6 +39,9 @@ const miscSlice = createSlice({
     setIsFileOpen : (state , action) => {
       state.isFileMenu = action.payload ;
     } ,
+    setIsMessageMenu : (state , action) => {
+      state.isMessageMenu = action.payload ;
+    } ,
     setIsDeleteMenu : (state , action) => {
       state.isDeleteMenu = action.payload ;
     } ,
@@ -62,4 +66,5 @@ export const {
   setIsFileOpen ,
   setSelectedDeleteChat,
   setUploadingLoader ,
+  setIsMessageMenu ,
 } = miscSlice.actions
