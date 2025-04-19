@@ -65,7 +65,7 @@ const api = createApi({
           url : `/chat/message/${roomId}/?page=${pageNo}` ,
           credentials : 'include' ,
         }) ,
-        keepUnusedDataFor : 0 
+        providesTags : ['Messages']
     }) ,
 
     SendAttachments :  builder.mutation({
@@ -153,7 +153,16 @@ const api = createApi({
         method : 'DELETE'
       }) ,
       invalidatesTags : ['Chats']
-    })
+    }) , 
+
+    deleteMessage : builder.mutation({
+      query : (id) => ({
+        url : `/chat/message/${id}` ,
+        credentials : 'include' ,
+        method : 'DELETE'
+      }) ,
+      invalidatesTags : ['Messages']
+    }) ,
 
   })
 })
@@ -173,6 +182,8 @@ export const {
   useCreatenewGroupMutation ,
   useRenameGroupMutation ,
   useAvailableFriendsQuery ,
+
+  useDeleteMessageMutation ,
 
   useDeleteGroupMutation ,
   useRemoveGroupMembersMutation ,

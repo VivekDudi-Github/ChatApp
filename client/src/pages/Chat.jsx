@@ -57,7 +57,7 @@ function Chat({room}) {
 
   let oldMessagesChunk = useGetMessagesQuery({roomId : room , pageNo : pageNo })    
   
-
+  const hiddenMessages = JSON.parse(localStorage.getItem('hiddenMessages')) || [] ;
   
   
 
@@ -207,12 +207,12 @@ function Chat({room}) {
   }
 
   const handleContextMenu = (e , id) => {
-    console.log(e.currentTarget , id);
     
     setMessageAnchor(e.currentTarget) ;
     setMessageId(id)
     dispatch(setIsMessageMenu(true)) ;
   }
+console.log(messages);
 
   return roomDetails.isLoading ? 
   (<Skeleton/>
@@ -232,14 +232,17 @@ function Chat({room}) {
         ref={containerRef}
         >
           {oldMessagesChunks &&
-          oldMessagesChunks.map((message ,index) => {
-              
+          oldMessagesChunks
+          .sort((a , b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .map((message ,index) => {
+              if(hiddenMessages.includes(message._id.toString())) return ;
               return <MessageComponent key={index} data={message}  SenderDetail= {message.sender} user={user} ContextHandler={handleContextMenu}/>
             }).reverse()
           }
 
           {messages &&
             messages.map((m ,index) => {
+              if(hiddenMessages.includes(m._id.toString())) return ;
               return <MessageComponent key={ m._id} data={m} SenderDetail = {m.sender} user={user} ContextHandler={handleContextMenu}/>
             })
           }

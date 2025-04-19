@@ -384,6 +384,24 @@ const getRoomDetails = TryCatch( async(req, res) => {
 
 } , 'getChatDetails')
 
+const deleteMessages = TryCatch(async (req , res) => {
+  const {id} = req.params ;
+  
+  if(!id) return ResError(res , 400 , 'No message to delete')
+    
+  const message = await Message.findById(id)
+  if(!message) return ResError(res , 404 , 'No message was found')
+    
+  if(message.sender.toString() !== req.userId._id.toString()) return ResError(res , 403 , 'You cannot delete this message')
+  
+  await Message.findByIdAndUpdate(id , {
+    content : '' , 
+    attachment : []
+  }) 
+
+  return ResSuccess(res , 200 , 'Successfully deleted')
+
+} , 'deleteMessages')
 
 export {
     getMessages ,
@@ -397,4 +415,5 @@ export {
     getMyGroups , 
     newGroupController , 
     getRooms , 
+    deleteMessages
   }

@@ -2,9 +2,10 @@ import { Menu, MenuItem } from '@mui/material'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setIsMessageMenu } from '../../redux/reducer/misc';
+import { UseAsyncMutation } from '../hook/hooks';
+import { useDeleteMessageMutation } from '../../redux/api/api';
 
 function MessageMenu({anchorEl , id}) {
-  console.log(anchorEl);
   
   const dispatch = useDispatch() ;
   const {isMessageMenu} = useSelector(state => state.misc)
@@ -15,6 +16,15 @@ function MessageMenu({anchorEl , id}) {
     !hiddenMessagesArray.includes(id) ? hiddenMessagesArray.push(id) : null ;
     localStorage.setItem('hiddenMessages' , JSON.stringify(hiddenMessagesArray) )
     dispatch(setIsMessageMenu(false))
+  }
+
+  const [deleteMessage] = UseAsyncMutation(useDeleteMessageMutation)
+  
+  const handleDeleteFromEveryone = () => {
+    if(!id) return ;
+    console.log(id);
+    
+    deleteMessage( '',id) ;
   }
 
   return (
@@ -29,6 +39,7 @@ function MessageMenu({anchorEl , id}) {
           bgcolor : 'rgba(0,0,0,0.2)'
         }
       }}
+      onClick={handleDeleteFromEveryone}
       > 
         Delete Chat from everyone
       </MenuItem>

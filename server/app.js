@@ -69,21 +69,24 @@ io.on('connection' ,(socket) => {
       room : room
     }
     const membersSocket = getSockets(members)
-    console.log(membersSocket);
     
-    io.to(membersSocket).emit(NEW_MESSAGE , {
-       message : messgaeForRealTime ,
-       roomID : room 
-    })
+    try {
+      const dbMessage = await Message.create(messageForDb)
+      console.log({...dbMessage._doc , sender});
+      
+      io.to(membersSocket).emit(NEW_MESSAGE , {
+        message : {...dbMessage._doc , sender} ,
+        roomID : room 
+     })
+    } catch (error) {
+      console.log("error while saving message for db" , error);
+    }
+
+    
     const otherMember = membersSocket.filter(m => m !== socket.id);
     
     io.to(otherMember).emit(NEW_MESSAGE_ALERT ,{roomID : room})
 
-    try {
-      await Message.create(messageForDb)
-    } catch (error) {
-      console.log("error while saving message for db" , error);
-    }
   } 
 )
 

@@ -1,6 +1,6 @@
 import express from "express";
 import { checkUser } from "../utils/checkUser.js";
-import { newGroupController , getRooms ,getMyGroups, getRoomDetails ,addMembers, removeMembers, deleteRoom, renameGroup, leaveGroup, sendAttachments, getMessages } from "../controllers/chat.controller.js";
+import { newGroupController , getRooms ,getMyGroups, getRoomDetails ,addMembers, removeMembers, deleteRoom, renameGroup, leaveGroup, sendAttachments, getMessages, deleteMessages } from "../controllers/chat.controller.js";
 import { sendAttachmentsMulter } from "../middlewares/multer.js";
 
 
@@ -16,6 +16,7 @@ router.delete('/room/:id' , checkUser , deleteRoom)
 router.post('/leave/:id' , checkUser , leaveGroup) 
 
 router.post('/message/:id' , checkUser ,sendAttachmentsMulter , sendAttachments)
+router.delete('/message/:id' , checkUser , deleteMessages)
 router.get('/:id' , checkUser , getRoomDetails)
 router.get('/message/:id' , checkUser , getMessages)
 export default router

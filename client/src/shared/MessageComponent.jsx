@@ -4,12 +4,11 @@ import React, { memo, useRef, useState } from 'react'
 import { fileFormat } from '../components/hook/features';
 import RenderAttachment from './RenderAttachments';
 import { useDispatch } from 'react-redux';
+import { ElectricMoped, ExitToAppRounded, Info, KebabDining, KeyboardOptionKey, KeyboardTab, List, ListAlt, Menu, MenuBookTwoTone, OfflinePinTwoTone, OpenInNewTwoTone } from '@mui/icons-material';
 import { setIsMessageMenu } from '../redux/reducer/misc';
-import MessageMenu from '../components/dialogs/MessageMenu';
 
 function MessageComponent({data , user , SenderDetail , ContextHandler}) {
   const dispatch = useDispatch() ;
-  
   const {sender , content , createdAt , attachment , _id} = data ;
   const SameSender = SenderDetail ? SenderDetail._id === user._id : null ;
   
@@ -31,12 +30,23 @@ function MessageComponent({data , user , SenderDetail , ContextHandler}) {
         {<div style={{ display : 'flex' , width: "100%" , alignItems : 'end' , justifyContent : `${SameSender ? 'end' : 'start'}` , gap : '5px' }}>
           <Avatar sx={{width : '30px' , height : '30px'}} src={SenderDetail?.avatar?.url} />
           <Typography color='rgba(150,20,200,0.)' fontSize={14} fontWeight={600} variant='caption' >{SenderDetail.name}</Typography>
+          <div style={{ width : '6px' , overflow : 'hidden' , margin : '0 5px'}} onClick={e => ContextHandler(e , _id) }>
+            <Menu />
+          </div>
         </div>
         }
 
         {sender && 
         <div style={{display : 'flex'  , marginTop : '5px' , alignItems : 'end' , justifyContent : `${SameSender ? 'start' : 'start'}`  }}>
-          <Typography >{content}</Typography>
+          <Typography >
+            {attachment && attachment.length == 0  && content == '' ? 
+            (
+              <i style={{color : 'gray'}}>This message was deleted by the user.</i>
+            ) : (
+              <>{content}</>
+            ) 
+          }
+          </Typography>
         </div>
         }
 
