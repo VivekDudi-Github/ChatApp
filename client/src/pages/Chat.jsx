@@ -108,6 +108,7 @@ function Chat({room}) {
     
     if(data.roomID !== room ) return ;
     setMessages(prev => [...prev , data.message])
+    // setOldMessageChunks(prev => [...prev , data.message])
    } , [room])  
 
   const EventHandler = useMemo(() => ({
@@ -122,7 +123,7 @@ function Chat({room}) {
   UseSocket(socket, EventHandler)                         //a small hook for handling the messages recieved via socket.io
 
  
-  useEffect(() => {                                       // checks for the errors and set chunks of messages if available
+  useEffect(() => {                                       // checks for the errors and aset chunks of messages if available
     if (roomDetails.isError){
       setErrors ( [{
         isError: roomDetails?.isError,
@@ -242,6 +243,7 @@ console.log(messages);
 
           {messages &&
             messages.map((m ,index) => {
+              console.log(messages.length)
               if(hiddenMessages.includes(m._id.toString())) return ;
               return <MessageComponent key={ m._id} data={m} SenderDetail = {m.sender} user={user} ContextHandler={handleContextMenu}/>
             })
@@ -280,7 +282,7 @@ console.log(messages);
 
       </form>
       <FileMenu anchorEl={FileMenuAnchor} RoomId={room}/>
-      <MessageMenu anchorEl={MessageAnchor} id={MessageId}/>
+      <MessageMenu anchorEl={MessageAnchor} messageId={MessageId} pageNo={pageNo} roomId={room}/>
     </>
   )
 }

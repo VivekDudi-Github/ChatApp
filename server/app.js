@@ -72,8 +72,6 @@ io.on('connection' ,(socket) => {
     
     try {
       const dbMessage = await Message.create(messageForDb)
-      console.log({...dbMessage._doc , sender});
-      
       io.to(membersSocket).emit(NEW_MESSAGE , {
         message : {...dbMessage._doc , sender} ,
         roomID : room 

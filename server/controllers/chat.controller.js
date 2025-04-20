@@ -282,7 +282,6 @@ const sendAttachments= async ( req , res) => {
     }
 
     const files = req.files ;
-    // console.log(files);
     
 
     if( !Array.isArray(files)  || files.length < 1 ) {
@@ -300,9 +299,13 @@ const sendAttachments= async ( req , res) => {
 
     const message = await Message.create(messageForDB);
 
-
+    
     emitEvent(req , NEW_MESSAGE , room.members , {
-      message : message ,
+      message : {...message._doc , sender : {
+        _id : user._id ,
+        name : user.name ,
+        avatar : user.avatar ,
+      }} ,
       roomID : id ,
     })
 

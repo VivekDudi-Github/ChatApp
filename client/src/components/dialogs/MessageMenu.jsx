@@ -5,7 +5,7 @@ import { setIsMessageMenu } from '../../redux/reducer/misc';
 import { UseAsyncMutation } from '../hook/hooks';
 import { useDeleteMessageMutation } from '../../redux/api/api';
 
-function MessageMenu({anchorEl , id}) {
+function MessageMenu({anchorEl , messageId , roomId , pageNo}) {
   
   const dispatch = useDispatch() ;
   const {isMessageMenu} = useSelector(state => state.misc)
@@ -21,10 +21,9 @@ function MessageMenu({anchorEl , id}) {
   const [deleteMessage] = UseAsyncMutation(useDeleteMessageMutation)
   
   const handleDeleteFromEveryone = () => {
-    if(!id) return ;
-    console.log(id);
+    if(!messageId || !roomId || !pageNo) return ;
     
-    deleteMessage( '',id) ;
+    deleteMessage( '',{messageId , roomId, pageNo }) ;
   }
 
   return (

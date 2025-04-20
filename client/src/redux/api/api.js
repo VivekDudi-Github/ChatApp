@@ -65,8 +65,9 @@ const api = createApi({
           url : `/chat/message/${roomId}/?page=${pageNo}` ,
           credentials : 'include' ,
         }) ,
-        providesTags : ['Messages']
-    }) ,
+        providesTags : ((result , error ,{roomId , pageNo}) => 
+          [{type : 'Messages' , id : `${roomId}-${pageNo}`}])
+      }) ,
 
     SendAttachments :  builder.mutation({
       query : ({data , RoomId}) => {
@@ -76,7 +77,8 @@ const api = createApi({
         credentials : 'include'  , 
         body : data 
       }} ,
-      invalidatesTags : ["Messages"]
+      invalidatesTags : ((result , error , {RoomId , pageNo}) => 
+        [{type : 'Messages' , id : `${RoomId}-${pageNo}`}] )
     }) ,
 
     myGroup : builder.query({
@@ -156,12 +158,14 @@ const api = createApi({
     }) , 
 
     deleteMessage : builder.mutation({
-      query : (id) => ({
-        url : `/chat/message/${id}` ,
+      query : ({messageId , roomId , pageNo}) => ({
+        url : `/chat/message/${messageId}` ,
         credentials : 'include' ,
         method : 'DELETE'
       }) ,
-      invalidatesTags : ['Messages']
+      invalidatesTags : ((result , error ,{roomId , pageNo}) => [
+        {type : 'Messages' , id : `${roomId , pageNo}` }
+      ])
     }) ,
 
   })
