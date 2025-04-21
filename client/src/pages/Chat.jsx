@@ -14,7 +14,7 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import FileMenu from '../components/dialogs/FileMenu';
 import { setIsFileOpen, setIsMessageMenu } from '../redux/reducer/misc';
-import { START_TYPING, STOP_TYPING } from '../components/Constants/events';
+import { DELETE_MESSAGE, START_TYPING, STOP_TYPING } from '../components/Constants/events';
 import TypingLoader from '../shared/TypingLoader';
 import MessageMenu from '../components/dialogs/MessageMenu';
 
@@ -108,14 +108,44 @@ function Chat({room}) {
     
     if(data.roomID !== room ) return ;
     setMessages(prev => [...prev , data.message])
-    // setOldMessageChunks(prev => [...prev , data.message])
    } , [room])  
+
+  const DeleteMessageListener = useCallback((data) => {
+    const {id , roomID} = data ;
+    if(!id || !roomID ) return ;
+    
+    if(room == roomID){
+      const index = messages.find(m => m._id.toString() == id.toString())
+      if(!index){
+      const newArray = oldMessagesChunks.map((message) => 
+      message._id.toString() === id.toString() ?
+      {
+        ...message ,
+        content : '' ,
+        attachment : ''
+      } : message
+      )
+      setOldMessageChunks(newArray)
+    } else {
+      const newArray = messages.map((message) => 
+        message._id.toString() === id.toString() ?
+        {
+          ...message ,
+          content : '' ,
+          attachment : ''
+        } : message
+        )
+        setMessages(newArray)
+    }
+  }
+
+  } , [room])
 
   const EventHandler = useMemo(() => ({
     [NEW_MESSAGE]: NewMessageListner ,
     [START_TYPING]: NewStartTypingListner ,
     [STOP_TYPING]: StopTypingListner ,
-  
+    [DELETE_MESSAGE] : DeleteMessageListener ,
   }   
   ), [NewMessageListner]);
 
@@ -215,6 +245,31 @@ function Chat({room}) {
   }
 console.log(messages);
 
+  const deleteMessageForEveryoneFunc= (messageId) => {
+    const messageIndex = messages.findIndex(message => message._id === messageId)
+    const deletedMessage = {
+      attachment: '' ,
+      content : '' , 
+    }
+    if(messageIndex !== -1){
+      const newArray = messages.map((message => message._id == messageId ? 
+        { ...message ,
+          ...deletedMessage ,
+        } : message 
+      ))
+
+      setMessages(newArray) ;
+    } else {
+      const newArray = oldMessagesChunks.m((message => message._id == messageId ? 
+        { ...message ,
+          ...deletedMessage
+        } : message 
+      )) 
+
+      setOldMessageChunks(newArray)
+    }
+  }
+
   return roomDetails.isLoading ? 
   (<Skeleton/>
     ) : (
@@ -272,7 +327,7 @@ console.log(messages);
             color : '#aaa' ,
             transitionDuration : '200ms' ,
             ':hover' : {
-              backgroundColor : '#999' , 
+              backgroundColor : '#999' ,
               color : '#000' ,
             }
             }}>
@@ -282,7 +337,7 @@ console.log(messages);
 
       </form>
       <FileMenu anchorEl={FileMenuAnchor} RoomId={room}/>
-      <MessageMenu anchorEl={MessageAnchor} messageId={MessageId} pageNo={pageNo} roomId={room}/>
+      <MessageMenu anchorEl={MessageAnchor} messageId={MessageId} pageNo={pageNo} deleteMessageForEveryoneFunc={deleteMessageForEveryoneFunc} roomId={room}/>
     </>
   )
 }

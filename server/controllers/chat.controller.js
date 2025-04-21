@@ -1,5 +1,5 @@
 import { Room} from "../models/room.model.js"
-import {ALERT, NEW_MESSAGE, NEW_MESSAGE_ALERT, REFRETCH_CHATS}  from '../constants/event.js'
+import {ALERT, DELETE_MESSAGE, NEW_MESSAGE, NEW_MESSAGE_ALERT, REFRETCH_CHATS}  from '../constants/event.js'
 import {emitEvent, uploadFilesTOCloudinary} from "../utils/features.js"
 import { User } from "../models/user.model.js"
 import { Message } from "../models/message.model.js"
@@ -321,7 +321,7 @@ const sendAttachments= async ( req , res) => {
   }
 }
 
-const getMessages =  TryCatch(async( req, res) => {  
+const getMessages =  TryCatch(async( req, res) => { 
   const {id} = req.params ;
   const {page = 1} = req.query ;
   
@@ -355,7 +355,7 @@ const getMessages =  TryCatch(async( req, res) => {
   
 
   return ResSuccess(res, 200 , {
-    messages : messages ,
+    messages : {...messages._doc , pageNo : page} ,
     total_pages 
   })
 
@@ -389,9 +389,21 @@ const getRoomDetails = TryCatch( async(req, res) => {
 
 const deleteMessages = TryCatch(async (req , res) => {
   const {id} = req.params ;
-  
+  const {room} = req.body ;
+
+  if(!room) return ResError(res , 400 ,'A Room ID is required' )
   if(!id) return ResError(res , 400 , 'No message to delete')
+  
+  const IsMember = await Room.find({
+    _id : room ,
+    members : {
+      $in : req.userId._id
+    }
+  }) 
     
+  if( !IsMember || IsMember.length > 0 ){
+    return ResError(res ,403 , 'You are not allowed to delete messages of other groups.')
+  }
   const message = await Message.findById(id)
   if(!message) return ResError(res , 404 , 'No message was found')
     
@@ -399,8 +411,10 @@ const deleteMessages = TryCatch(async (req , res) => {
   
   await Message.findByIdAndUpdate(id , {
     content : '' , 
-    attachment : []
+    attachment : [] 
   }) 
+
+  emitEvent(req , DELETE_MESSAGE , IsMember[0].members , {id , roomID : room} )
 
   return ResSuccess(res , 200 , 'Successfully deleted')
 

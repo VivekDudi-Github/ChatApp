@@ -5,7 +5,7 @@ import { setIsMessageMenu } from '../../redux/reducer/misc';
 import { UseAsyncMutation } from '../hook/hooks';
 import { useDeleteMessageMutation } from '../../redux/api/api';
 
-function MessageMenu({anchorEl , messageId , roomId , pageNo}) {
+function MessageMenu({anchorEl , messageId , roomId , pageNo , deleteMessageForEveryoneFunc}) {
   
   const dispatch = useDispatch() ;
   const {isMessageMenu} = useSelector(state => state.misc)

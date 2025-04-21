@@ -77,8 +77,7 @@ const api = createApi({
         credentials : 'include'  , 
         body : data 
       }} ,
-      invalidatesTags : ((result , error , {RoomId , pageNo}) => 
-        [{type : 'Messages' , id : `${RoomId}-${pageNo}`}] )
+      invalidatesTags : ['Messages']
     }) ,
 
     myGroup : builder.query({
@@ -158,14 +157,14 @@ const api = createApi({
     }) , 
 
     deleteMessage : builder.mutation({
-      query : ({messageId , roomId , pageNo}) => ({
+      query : ({messageId , roomId }) => ({
         url : `/chat/message/${messageId}` ,
         credentials : 'include' ,
-        method : 'DELETE'
+        method : 'DELETE' ,
+        body : {
+          room : roomId ,
+        }
       }) ,
-      invalidatesTags : ((result , error ,{roomId , pageNo}) => [
-        {type : 'Messages' , id : `${roomId , pageNo}` }
-      ])
     }) ,
 
   })
