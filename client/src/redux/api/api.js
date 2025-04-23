@@ -77,7 +77,6 @@ const api = createApi({
         credentials : 'include'  , 
         body : data 
       }} ,
-      invalidatesTags : ['Messages']
     }) ,
 
     myGroup : builder.query({
@@ -164,7 +163,7 @@ const api = createApi({
         body : {
           room : roomId ,
         }
-      }) ,
+      }) , 
     }) ,
 
   })

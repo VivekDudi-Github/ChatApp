@@ -59,7 +59,7 @@ export const uploadFilesTOCloudinary = async(files =[]) => {
 
 export const deleteFilesTOCloudinary = async(files =[]) => {
   const promise =  files.map(async(f) => {
-    await cloudinary.uploader.destroy(f.path)
+    await cloudinary.uploader.destroy(f.public_id )
   })
 
   try {
@@ -67,6 +67,5 @@ export const deleteFilesTOCloudinary = async(files =[]) => {
   } catch (error) {
     console.log('---error-- while deleting file from the cloudinary' ,error);
     throw new Error("Error while deleting files in cloudinary");
-    
   }
 }

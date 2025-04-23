@@ -21,9 +21,12 @@ function MessageMenu({anchorEl , messageId , roomId , pageNo , deleteMessageForE
   const [deleteMessage] = UseAsyncMutation(useDeleteMessageMutation)
   
   const handleDeleteFromEveryone = () => {
-    if(!messageId || !roomId || !pageNo) return ;
+    if(!messageId || !roomId ) return ;
+    dispatch(setIsMessageMenu(false)) ;
+    deleteMessageForEveryoneFunc(messageId)
+    deleteMessage( '',{messageId , roomId }) ;
+    console.log('done');
     
-    deleteMessage( '',{messageId , roomId, pageNo }) ;
   }
 
   return (

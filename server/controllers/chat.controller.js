@@ -1,6 +1,6 @@
 import { Room} from "../models/room.model.js"
 import {ALERT, DELETE_MESSAGE, NEW_MESSAGE, NEW_MESSAGE_ALERT, REFRETCH_CHATS}  from '../constants/event.js'
-import {emitEvent, uploadFilesTOCloudinary} from "../utils/features.js"
+import {deleteFilesTOCloudinary, emitEvent, uploadFilesTOCloudinary} from "../utils/features.js"
 import { User } from "../models/user.model.js"
 import { Message } from "../models/message.model.js"
 
@@ -353,9 +353,10 @@ const getMessages =  TryCatch(async( req, res) => {
   const totalMessage = await Message.countDocuments({room : id})
   const total_pages = Math.ceil(totalMessage / limit) ;
   
+  const messagesArray = messages.map(m => ({...m ,pageNo : page }))
 
   return ResSuccess(res, 200 , {
-    messages : {...messages._doc , pageNo : page} ,
+    messages : messagesArray,
     total_pages 
   })
 
@@ -401,7 +402,7 @@ const deleteMessages = TryCatch(async (req , res) => {
     }
   }) 
     
-  if( !IsMember || IsMember.length > 0 ){
+  if( !IsMember || !IsMember.length > 0 ){
     return ResError(res ,403 , 'You are not allowed to delete messages of other groups.')
   }
   const message = await Message.findById(id)
@@ -409,12 +410,18 @@ const deleteMessages = TryCatch(async (req , res) => {
     
   if(message.sender.toString() !== req.userId._id.toString()) return ResError(res , 403 , 'You cannot delete this message')
   
+  if(message.attachment.length > 0){
+    await deleteFilesTOCloudinary(message.attachment)
+  } 
+
   await Message.findByIdAndUpdate(id , {
     content : '' , 
     attachment : [] 
   }) 
-
-  emitEvent(req , DELETE_MESSAGE , IsMember[0].members , {id , roomID : room} )
+  console.log(id , room);
+  
+  const otherMembers = IsMember[0].members.filter(m => m.toString() !== req.userId._id.toString())
+  emitEvent(req , DELETE_MESSAGE , otherMembers , {id , roomID : room} )
 
   return ResSuccess(res , 200 , 'Successfully deleted')
 

@@ -112,33 +112,42 @@ function Chat({room}) {
 
   const DeleteMessageListener = useCallback((data) => {
     const {id , roomID} = data ;
-    if(!id || !roomID ) return ;
+    if(!id || !roomID ) console.log('id or roomId not found');
     
     if(room == roomID){
-      const index = messages.find(m => m._id.toString() == id.toString())
-      if(!index){
-      const newArray = oldMessagesChunks.map((message) => 
-      message._id.toString() === id.toString() ?
+      console.log( typeof id , id);
+      
+      const index = oldMessagesChunks.findIndex(m => m._id == id )
+      
+      console.log(index);
+      
+      if(index > -1){
+      const newArray = oldMessagesChunks.map((message) => (
+      message._id == id ?
       {
         ...message ,
         content : '' ,
         attachment : ''
       } : message
-      )
+      ))
+      console.log(newArray);
+      
       setOldMessageChunks(newArray)
     } else {
-      const newArray = messages.map((message) => 
-        message._id.toString() === id.toString() ?
+      const newArray = messages.map((message) => (
+        message._id == id ?
         {
           ...message ,
           content : '' ,
           attachment : ''
         } : message
         )
+      )
+        console.log(newArray);
+        
         setMessages(newArray)
     }
   }
-
   } , [room])
 
   const EventHandler = useMemo(() => ({
@@ -179,6 +188,8 @@ function Chat({room}) {
       
       let data = oldMessagesChunk?.data?.data?.messages
       setTotalPageNo(oldMessagesChunk?.data?.data?.total_pages)
+      console.log('setting old chunk data');
+      
       setOldMessageChunks(prev => [...prev , ...data ])  
       setMembers(roomDetails?.data?.data?.members)
 
@@ -210,7 +221,7 @@ function Chat({room}) {
     if(containerRef?.current?.scrollTop  === 0 ){
       if(pageNo < TotalPageNo ){
           setOldScrollHeight(containerRef?.current?.scrollHeight)   
-          setPageNo(prev => prev + 1)
+          if(oldMessagesChunks.length > 5 ) setPageNo(prev => prev + 1)
         }
     }
   }
@@ -243,7 +254,7 @@ function Chat({room}) {
     setMessageId(id)
     dispatch(setIsMessageMenu(true)) ;
   }
-console.log(messages);
+console.log(messages , oldMessagesChunks , pageNo);
 
   const deleteMessageForEveryoneFunc= (messageId) => {
     const messageIndex = messages.findIndex(message => message._id === messageId)
@@ -260,9 +271,9 @@ console.log(messages);
 
       setMessages(newArray) ;
     } else {
-      const newArray = oldMessagesChunks.m((message => message._id == messageId ? 
+      const newArray = oldMessagesChunks.map((message => message._id == messageId ? 
         { ...message ,
-          ...deletedMessage
+          ...deletedMessage ,
         } : message 
       )) 
 
@@ -298,7 +309,7 @@ console.log(messages);
 
           {messages &&
             messages.map((m ,index) => {
-              console.log(messages.length)
+              console.log(messages.length , typeof m._id)
               if(hiddenMessages.includes(m._id.toString())) return ;
               return <MessageComponent key={ m._id} data={m} SenderDetail = {m.sender} user={user} ContextHandler={handleContextMenu}/>
             })
@@ -337,7 +348,7 @@ console.log(messages);
 
       </form>
       <FileMenu anchorEl={FileMenuAnchor} RoomId={room}/>
-      <MessageMenu anchorEl={MessageAnchor} messageId={MessageId} pageNo={pageNo} deleteMessageForEveryoneFunc={deleteMessageForEveryoneFunc} roomId={room}/>
+      <MessageMenu anchorEl={MessageAnchor} messageId={MessageId} deleteMessageForEveryoneFunc={deleteMessageForEveryoneFunc} roomId={room}/>
     </>
   )
 }

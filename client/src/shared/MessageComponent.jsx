@@ -4,8 +4,7 @@ import React, { memo, useRef, useState } from 'react'
 import { fileFormat } from '../components/hook/features';
 import RenderAttachment from './RenderAttachments';
 import { useDispatch } from 'react-redux';
-import { ElectricMoped, ExitToAppRounded, Info, KebabDining, KeyboardOptionKey, KeyboardTab, List, ListAlt, Menu, MenuBookTwoTone, OfflinePinTwoTone, OpenInNewTwoTone } from '@mui/icons-material';
-import { setIsMessageMenu } from '../redux/reducer/misc';
+import { Menu } from '@mui/icons-material';
 
 function MessageComponent({data , user , SenderDetail , ContextHandler}) {
   const dispatch = useDispatch() ;
@@ -39,7 +38,7 @@ function MessageComponent({data , user , SenderDetail , ContextHandler}) {
         {sender && 
         <div style={{display : 'flex'  , marginTop : '5px' , alignItems : 'end' , justifyContent : `${SameSender ? 'start' : 'start'}`  }}>
           <Typography >
-            {attachment && attachment.length == 0  && content == '' ? 
+            {attachment?.length == 0  && content == '' ? 
             (
               <i style={{color : 'gray'}}>This message was deleted by the user.</i>
             ) : (
