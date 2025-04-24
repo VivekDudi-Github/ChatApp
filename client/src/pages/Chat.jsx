@@ -27,20 +27,21 @@ function Chat({room}) {
   const navigate = useNavigate() ;
   const dispatch = useDispatch() ;
   const {user} = useSelector(state => state.auth)
-  
 
   const [oldScrollHeight , setOldScrollHeight] = useState(null)
   const [ input , setInput] = useState('') ;
   
   const [FileMenuAnchor , setFileMenuAnchor] = useState(null) ;
   const [MessageAnchor , setMessageAnchor]  = useState(null) ;
-  const [MessageId , setMessageId] = useState(null)
+  const [MessageId , setMessageId] = useState({})
 
 
   const [IAmTyping , setIAmTyping] = useState(false) ;
   const [userTyping , setuserTyping] = useState(false) ;
 
 
+
+  
 
   const [pageNo , setPageNo] = useState(1) ;
   const [TotalPageNo , setTotalPageNo] = useState(1) ;
@@ -59,6 +60,9 @@ function Chat({room}) {
   
   const hiddenMessages = JSON.parse(localStorage.getItem('hiddenMessages')) || [] ;
   
+
+  const messagesRef = useRef(messages) ;
+  const oldMessagesChunksRef = useRef(oldMessagesChunks)
   
 
   useEffect(() => {
@@ -114,41 +118,9 @@ function Chat({room}) {
     const {id , roomID} = data ;
     if(!id || !roomID ) console.log('id or roomId not found');
     
-    if(room == roomID){
-      console.log( typeof id , id);
-      
-      const index = oldMessagesChunks.findIndex(m => m._id == id )
-      
-      console.log(index);
-      
-      if(index > -1){
-      const newArray = oldMessagesChunks.map((message) => (
-      message._id == id ?
-      {
-        ...message ,
-        content : '' ,
-        attachment : ''
-      } : message
-      ))
-      console.log(newArray);
-      
-      setOldMessageChunks(newArray)
-    } else {
-      const newArray = messages.map((message) => (
-        message._id == id ?
-        {
-          ...message ,
-          content : '' ,
-          attachment : ''
-        } : message
-        )
-      )
-        console.log(newArray);
-        
-        setMessages(newArray)
-    }
-  }
-  } , [room])
+    handleMessageDelete(roomID , id)
+
+  } , [room , messages , oldMessagesChunks])
 
   const EventHandler = useMemo(() => ({
     [NEW_MESSAGE]: NewMessageListner ,
@@ -206,6 +178,10 @@ function Chat({room}) {
 
   useErrors(errors)
   
+  useEffect(() => {
+    messagesRef.current = messages ;
+    oldMessagesChunksRef.current = oldMessagesChunks ; 
+  } , [messages , oldMessagesChunks])
 
   
   useEffect(() => {                                         //creates a small jump after recieving a message 
@@ -216,7 +192,41 @@ function Chat({room}) {
       })  
     } , [messages])
 
- 
+
+  const handleMessageDelete = (roomID , id) => {
+    if(room == roomID){
+      const messages = messagesRef.current ;
+      const oldMessagesChunks = oldMessagesChunksRef.current ;
+      
+      const index = oldMessagesChunks.findIndex(m => m._id == id )
+      
+      if(index > -1){
+      const newArray = oldMessagesChunks.map((message) => (
+      message._id == id ?
+      {
+        ...message ,
+        content : '' ,
+        attachment : ''
+      } : message
+      ))
+      
+      setOldMessageChunks(newArray)
+    } else {
+      
+      const newArray = messages.map((message) => (
+        message._id == id ?
+        {
+          ...message ,
+          content : '' ,
+          attachment : ''
+        } : message
+        )
+      ) 
+      setMessages(newArray)
+    }
+  }
+  }
+
   const handleScroll = () => {                             //on scroll it stimulates rerender & increase page no  
     if(containerRef?.current?.scrollTop  === 0 ){
       if(pageNo < TotalPageNo ){
@@ -248,13 +258,12 @@ function Chat({room}) {
     } , [3000])
   }
 
-  const handleContextMenu = (e , id) => {
+  const handleContextMenu = (e , id , sameSender) => {
     
     setMessageAnchor(e.currentTarget) ;
-    setMessageId(id)
+    setMessageId({_id : id , sameSender : sameSender}) ;
     dispatch(setIsMessageMenu(true)) ;
   }
-console.log(messages , oldMessagesChunks , pageNo);
 
   const deleteMessageForEveryoneFunc= (messageId) => {
     const messageIndex = messages.findIndex(message => message._id === messageId)
@@ -348,7 +357,7 @@ console.log(messages , oldMessagesChunks , pageNo);
 
       </form>
       <FileMenu anchorEl={FileMenuAnchor} RoomId={room}/>
-      <MessageMenu anchorEl={MessageAnchor} messageId={MessageId} deleteMessageForEveryoneFunc={deleteMessageForEveryoneFunc} roomId={room}/>
+      <MessageMenu anchorEl={MessageAnchor} messageData={MessageId} deleteMessageForEveryoneFunc={deleteMessageForEveryoneFunc} roomId={room}/>
     </>
   )
 }

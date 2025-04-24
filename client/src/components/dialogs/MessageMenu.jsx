@@ -5,11 +5,13 @@ import { setIsMessageMenu } from '../../redux/reducer/misc';
 import { UseAsyncMutation } from '../hook/hooks';
 import { useDeleteMessageMutation } from '../../redux/api/api';
 
-function MessageMenu({anchorEl , messageId , roomId , pageNo , deleteMessageForEveryoneFunc}) {
+function MessageMenu({anchorEl , messageData , roomId , deleteMessageForEveryoneFunc}) {
   
   const dispatch = useDispatch() ;
   const {isMessageMenu} = useSelector(state => state.misc)
   
+  const { messageId , sameSender} = messageData ;
+
   const handleDeleteFromMe = () => {
     const hiddenMessagesArray = JSON.parse(localStorage.getItem('hiddenMessages')) || [] ;
 
@@ -22,10 +24,10 @@ function MessageMenu({anchorEl , messageId , roomId , pageNo , deleteMessageForE
   
   const handleDeleteFromEveryone = () => {
     if(!messageId || !roomId ) return ;
+    if(!sameSender) return ;
     dispatch(setIsMessageMenu(false)) ;
     deleteMessageForEveryoneFunc(messageId)
     deleteMessage( '',{messageId , roomId }) ;
-    console.log('done');
     
   }
 
@@ -34,17 +36,19 @@ function MessageMenu({anchorEl , messageId , roomId , pageNo , deleteMessageForE
    sx={{
    }} 
     >
-      <MenuItem 
-      sx={{
-        transitionDuration : '200ms' ,
-        ':hover' : {
-          bgcolor : 'rgba(0,0,0,0.2)'
-        }
-      }}
-      onClick={handleDeleteFromEveryone}
-      > 
-        Delete Chat from everyone
-      </MenuItem>
+      {sameSender ? (
+        <MenuItem 
+        sx={{
+          transitionDuration : '200ms' ,
+          ':hover' : {
+            bgcolor : 'rgba(0,0,0,0.2)'
+          }
+        }}
+        onClick={handleDeleteFromEveryone}
+        > 
+          Delete Chat from everyone
+        </MenuItem>
+      ) : null }
       <MenuItem
       sx={{
         transitionDuration : '200ms' ,

@@ -24,12 +24,12 @@ function MessageComponent({data , user , SenderDetail , ContextHandler}) {
           maxWidth : '70%' ,
           width : 'content-fit', 
         }}
-        onContextMenu={e => ContextHandler(e , _id)}
+        onContextMenu={e => ContextHandler(e , _id , SameSender)}
         >
         {<div style={{ display : 'flex' , width: "100%" , alignItems : 'end' , justifyContent : `${SameSender ? 'end' : 'start'}` , gap : '5px' }}>
           <Avatar sx={{width : '30px' , height : '30px'}} src={SenderDetail?.avatar?.url} />
           <Typography color='rgba(150,20,200,0.)' fontSize={14} fontWeight={600} variant='caption' >{SenderDetail.name}</Typography>
-          <div style={{ width : '6px' , overflow : 'hidden' , margin : '0 5px'}} onClick={e => ContextHandler(e , _id) }>
+          <div style={{ width : '6px' , overflow : 'hidden' , margin : '0 5px'}} onClick={e => ContextHandler(e , _id , SameSender) }>
             <Menu />
           </div>
         </div>
